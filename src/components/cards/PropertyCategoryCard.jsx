@@ -25,11 +25,11 @@ export default function PropertyCategoryCard({ image, label }) {
           px: 5,
           py: 1,
           borderRadius: "999px",
-          fontWeight: 500,
+          fontWeight: 600,
           color: "#9b5cff",
-          borderColor: "#d6b7ff",
+          border: "1px solid #d6b7ff", // 👈 force 1px border
           "&:hover": {
-            borderColor: "#9b5cff",
+            border: "1px solid #9b5cff",
             backgroundColor: "transparent",
           },
         }}

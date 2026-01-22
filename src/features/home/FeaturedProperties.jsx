@@ -19,11 +19,16 @@ export default function FeaturedProperties() {
     >
       {/* Heading */}
       <Stack spacing={2} alignItems="center" mb={8}>
-        <Typography variant="h4" fontWeight={600} color="#1f2a44">
+        <Typography variant="h4" fontWeight={500} color="#1f2a44" fontSize={36}>
           Featured Properties
         </Typography>
 
-        <Typography variant="body1" color="#6b7280" textAlign="center">
+        <Typography
+          variant="body1"
+          color="#6b7280"
+          textAlign="center"
+          fontSize={16}
+        >
           Explore some of the best properties available right now.
         </Typography>
       </Stack>

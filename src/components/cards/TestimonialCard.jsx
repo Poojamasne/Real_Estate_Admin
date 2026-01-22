@@ -12,7 +12,8 @@ export default function TestimonialCard({
   return (
     <Box
       sx={{
-        width: 587,
+        height: 334,
+        maxWidth: 587,
         bgcolor: "#ffffff",
         borderRadius: "16px",
         px: 4,

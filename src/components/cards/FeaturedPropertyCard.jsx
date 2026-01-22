@@ -1,4 +1,5 @@
 // src/components/FeaturedPropertyCard.jsx
+
 import { Box, Stack, Typography, Button } from "@mui/material";
 
 export default function FeaturedPropertyCard({
@@ -10,13 +11,21 @@ export default function FeaturedPropertyCard({
 }) {
   return (
     <Stack
-      spacing={2}
       sx={{
-        width: 398,
+        maxWidth: 398,
+        height: 451,
         backgroundColor: "#ffffff",
         borderRadius: "14px",
         border: "1px solid #B7B7B7",
-        p: "13px 29px",
+
+        // ✅ IMPORTANT
+        display: "flex",
+        flexDirection: "column",
+
+        // padding controls distance from border
+        pt: 2,
+        px: 3,
+        pb: 3,
       }}
     >
       {/* Image */}
@@ -29,12 +38,15 @@ export default function FeaturedPropertyCard({
           height: 206,
           objectFit: "cover",
           borderRadius: "11px",
+          mb: 2,
         }}
       />
 
       {/* Content */}
       <Stack spacing={1}>
-        <Typography fontWeight={500}>{title}</Typography>
+        <Typography fontWeight={400} fontSize="17px">
+          {title}
+        </Typography>
 
         <Typography variant="body2" color="text.secondary">
           Location : {location}
@@ -49,19 +61,23 @@ export default function FeaturedPropertyCard({
         </Typography>
       </Stack>
 
+      {/* ✅ FLEX SPACER */}
+      <Box sx={{ flexGrow: 1 }} />
+
       {/* CTA */}
       <Button
         variant="contained"
+        fullWidth
         sx={{
-          mt: 1,
+          height: 44,
           borderRadius: "8px",
           textTransform: "none",
+          fontWeight: 600,
           backgroundColor: "#9b5cff",
           "&:hover": {
             backgroundColor: "#8a4ef0",
           },
         }}
-        fullWidth
       >
         View Details
       </Button>

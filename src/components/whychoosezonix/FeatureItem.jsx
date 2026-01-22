@@ -18,13 +18,15 @@ export default function FeatureItem({ icon, title, subtitle, description }) {
         {icon}
       </Box>
 
-      <Typography fontWeight={600}>{title}</Typography>
+      <Typography fontWeight={600} fontSize={24}>
+        {title}
+      </Typography>
 
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" color="text.secondary" fontSize={18}>
         {subtitle}
       </Typography>
 
-      <Typography variant="body2" color="text.secondary" maxWidth={260}>
+      <Typography variant="body2" color="#000000" maxWidth={260} fontSize={18}>
         {description}
       </Typography>
     </Stack>

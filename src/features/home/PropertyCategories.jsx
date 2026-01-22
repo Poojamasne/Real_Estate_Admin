@@ -18,15 +18,21 @@ export default function PropertyCategories() {
     >
       {/* Heading */}
       <Stack spacing={2} alignItems="center" mb={8}>
-        <Typography variant="h4" sx={{ fontWeight: 600, color: "#1f2a44" }}>
+        <Typography
+          variant="h4"
+          fontSize={35}
+          sx={{ fontWeight: 500, color: "#1f2a44", fontFamily: "Montserrat" }}
+        >
           Property Categories
         </Typography>
 
         <Typography
           variant="body1"
+          fontSize={16}
           sx={{
+            fontFamily: "Montserrat",
             color: "#6b7280",
-            maxWidth: 720,
+            maxWidth: 820,
             textAlign: "center",
           }}
         >

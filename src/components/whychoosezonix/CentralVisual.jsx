@@ -1,7 +1,7 @@
 // src/components/WhyChooseZonix/CentralVisual.jsx
 import { Box, Typography } from "@mui/material";
 import BgShape from "../../assets/BackgroundShape/Background.svg";
-import Logo from "../../assets/Logo/Logo.svg";
+import Logo from "../../assets/Logo/Logo1.svg";
 
 export default function CentralVisual() {
   return (
@@ -41,12 +41,8 @@ export default function CentralVisual() {
           component="img"
           src={Logo}
           alt="Zonix Realty"
-          sx={{ width: 160 }}
+          sx={{ width: 446 }}
         />
-
-        <Typography fontSize={28} fontWeight={500} color="#0F2A44">
-          Zonix Realty
-        </Typography>
       </Box>
     </Box>
   );
