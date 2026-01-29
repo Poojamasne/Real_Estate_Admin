@@ -25,7 +25,7 @@ const Inquiries = () => {
       email: 'riya.p@sumago.com',
       propertyInterested: 'Luxury Villa in Beverly Hills',
       phone: '91777877889',
-      inquiryDate: '12/08/2026',
+      inquiryDate: '12-08-2026',
       status: 'New',
       message: "I'm interested in Scheduling A Viewing For This Property. Would This Weekend Work?",
       deleteDate: '11-02-2026'
@@ -36,7 +36,7 @@ const Inquiries = () => {
       email: 'shawtraders@yahoo.com',
       propertyInterested: 'Modern Downtown Apartment',
       phone: '91989898989',
-      inquiryDate: '11/02/2026',
+      inquiryDate: '11-02-2026',
       status: 'Contacted',
       message: 'Please send me more details about the apartment.',
       deleteDate: '11-02-2026'
@@ -47,7 +47,7 @@ const Inquiries = () => {
       email: 'guptasup@gmail.com',
       propertyInterested: 'Suburban Family Home',
       phone: '91777777777',
-      inquiryDate: '10/02/2025',
+      inquiryDate: '10-02-2025',
       status: 'Follow-up',
       message: 'Can you provide floor plans?',
       deleteDate: '11-02-2025'
@@ -58,7 +58,7 @@ const Inquiries = () => {
       email: 'kmoretrans@gmail.com',
       propertyInterested: 'Mountain View Estate',
       phone: '91666666666',
-      inquiryDate: '09/02/2026',
+      inquiryDate: '09-02-2026',
       status: 'Converted',
       message: 'I would like to schedule a virtual tour.',
       deleteDate: '11-02-2026'
@@ -69,65 +69,10 @@ const Inquiries = () => {
       email: 'sharmasteel@gmail.com',
       propertyInterested: 'Urban Loft',
       phone: '91555555555',
-      inquiryDate: '08/02/2024',
+      inquiryDate: '08-02-2024',
       status: 'Lost',
       message: 'Is there parking available?',
-      deleteDate: '11-02/2024'
-    },
-    {
-      id: 6,
-      name: 'Amit Kumar',
-      email: 'amit.k@example.com',
-      propertyInterested: 'Beachfront Villa',
-      phone: '91444444444',
-      inquiryDate: '07/02/2023',
-      status: 'Archived',
-      message: 'Interested in rental options.',
-      deleteDate: '11-02-2023'
-    },
-    {
-      id: 7,
-      name: 'Priya Sharma',
-      email: 'priya.s@example.com',
-      propertyInterested: 'Penthouse Suite',
-      phone: '91333333333',
-      inquiryDate: '06/02/2026',
-      status: 'New',
-      message: 'Looking for a property with balcony.',
-      deleteDate: '11-02-2026'
-    },
-    {
-      id: 8,
-      name: 'Vikram Singh',
-      email: 'vikram.s@example.com',
-      propertyInterested: 'Countryside Cottage',
-      phone: '91222222222',
-      inquiryDate: '05/02/2025',
-      status: 'Contacted',
-      message: 'Need property near schools.',
-      deleteDate: '11-02-2025'
-    },
-    {
-      id: 9,
-      name: 'Neha Gupta',
-      email: 'neha.g@example.com',
-      propertyInterested: 'Studio Apartment',
-      phone: '91111111111',
-      inquiryDate: '04/02/2024',
-      status: 'Follow-up',
-      message: 'Budget is 50 lakhs maximum.',
       deleteDate: '11-02-2024'
-    },
-    {
-      id: 10,
-      name: 'Rahul Verma',
-      email: 'rahul.v@example.com',
-      propertyInterested: 'Commercial Space',
-      phone: '91000000000',
-      inquiryDate: '03/02/2023',
-      status: 'Converted',
-      message: 'Need space for retail business.',
-      deleteDate: '11-02/2023'
     },
   ]);
 
@@ -293,11 +238,23 @@ const Inquiries = () => {
   //   'Archived'
   // ];
 
-  // Format date to display
-  const formatDate = (dateString) => {
-    const [day, month, year] = dateString.split('/');
-    return `${day}/${month}/${year}`;
-  };
+ // Format date to display - FIXED VERSION
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  
+  // Check if date contains '-' separator
+  if (dateString.includes('-')) {
+    const [day, month, year] = dateString.split('-');
+    return `${day}-${month}-${year}`;
+  }
+  
+  // If it already has '/' separator, return as is
+  if (dateString.includes('/')) {
+    return dateString;
+  }
+  
+  return dateString;
+};
 
   // CSS Styles
   const styles = {
@@ -1516,7 +1473,7 @@ const Inquiries = () => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Message section - single column */}
               <div style={styles.messageSection}>
                 <h3 style={styles.sectionTitle}>Message</h3>
