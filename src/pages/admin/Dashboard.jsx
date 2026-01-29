@@ -1,18 +1,47 @@
 import React from "react";
 
 // Icons
-import TotalPropertiesIcon from "../../assets/icons/Total Properties.svg";
-import TotalInquiriesIcon from "../../assets/icons/Total Inquiries.svg";
-import AvailablePropertiesIcon from "../../assets/icons/Available Properties.svg";
-import ActiveLeadsIcon from "../../assets/icons/Active Leads.svg";
+import TotalPropertiesIcon from "../../assets/icons/Total Properties1.svg";
+import TotalInquiriesIcon from "../../assets/icons/Total Inquiries1.svg";
+import AvailablePropertiesIcon from "../../assets/icons/Available Properties1.svg";
+import ActiveLeadsIcon from "../../assets/icons/Active Leads1.svg";
 
 const Dashboard = () => {
   const stats = [
-    { id: 1, title: "Total Properties", value: 21, change: "+12% from last month", icon: TotalPropertiesIcon },
-    { id: 2, title: "Total Inquiries", value: 12, change: "+8% from last month", icon: TotalInquiriesIcon },
-    { id: 3, title: "Available Properties", value: 15, change: "6 properties", icon: AvailablePropertiesIcon },
-    { id: 4, title: "Active Leads", value: 10, change: "Pending follow-up", icon: ActiveLeadsIcon },
-  ];
+  {
+    id: 1,
+    title: "Total Properties",
+    value: 21,
+    change: "+12% from last month",
+    icon: TotalPropertiesIcon,
+    bgColor: "#B4F8FF",
+  },
+  {
+    id: 2,
+    title: "Total Inquiries",
+    value: 12,
+    change: "+8% from last month",
+    icon: TotalInquiriesIcon,
+    bgColor: "#B4FFD9",
+  },
+  {
+    id: 3,
+    title: "Available Properties",
+    value: 15,
+    change: "6 properties",
+    icon: AvailablePropertiesIcon,
+    bgColor: "#FFE8B4",
+  },
+  {
+    id: 4,
+    title: "Active Leads",
+    value: 10,
+    change: "Pending follow-up",
+    icon: ActiveLeadsIcon,
+    bgColor: "#B4FFD9",
+  },
+];
+
 
   const recentInquiries = [
     { id: 1, name: "Rahul Jagtap", property: "Luxury Villa in Beverly Hills", status: "Contacted" },
@@ -251,7 +280,13 @@ const Dashboard = () => {
               <div style={styles.statValue}>{s.value}</div>
               <div style={styles.statChange}>{s.change}</div>
             </div>
-            <div style={styles.statIconBox}>
+            <div
+  style={{
+    ...styles.statIconBox,
+    background: s.bgColor,
+  }}
+>
+
               <img src={s.icon} alt="" width={24} height={24} />
             </div>
           </div>
