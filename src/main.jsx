@@ -1,3 +1,10 @@
-// Backwards-compatible entrypoint for Vite (`index.html` points here).
-// The actual app entry lives in `src/app/main.jsx`.
-import "./app/main.jsx";
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import './index.css'
+import App from './app/App.jsx'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)

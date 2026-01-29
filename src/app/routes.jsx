@@ -1,38 +1,48 @@
-// src/routes.jsx
-import { createBrowserRouter } from "react-router-dom";
-
-// layouts
-import UserLayout from "../layouts/UserLayout";
-import AdminLayout from "../layouts/AdminLayout";
-
-// pages
-import Login from "../features/auth/Login";
-import Home from "../pages/user/Home";
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import AdminLogin from "../features/auth/AdminLogin";
 import Dashboard from "../pages/admin/Dashboard";
+import Properties from "../pages/admin/Properties";
+import Inquiries from "../pages/admin/Inquiries";
+import AdminLayout from "../components/layout/AdminLayout";
+import AdminRoute from "../guards/AdminRoute";
 
 export const router = createBrowserRouter([
   {
-    path: "/login",
-    element: <Login />,
+    path: "/",
+    element: <Navigate to="/admin/login" replace />,
   },
   {
-    path: "/app",
-    element: <UserLayout />,
-    children: [
-      {
-        path: "home",
-        element: <Home />,
-      },
-    ],
+    path: "/admin/login",
+    element: <AdminLogin />,
   },
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (
+      <AdminRoute>
+        <AdminLayout />
+      </AdminRoute>
+    ),
     children: [
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />,
+      },
       {
         path: "dashboard",
         element: <Dashboard />,
       },
+      {
+        path: "properties",
+        element: <Properties />,
+      },
+      {
+        path: "inquiries",
+        element: <Inquiries />,
+      },
     ],
+  },
+  {
+    path: "*",
+    element: <Navigate to="/admin/login" replace />,
   },
 ]);
