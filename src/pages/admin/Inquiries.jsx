@@ -26,8 +26,8 @@ const Inquiries = () => {
       propertyInterested: 'Luxury Villa in Beverly Hills',
       phone: '91777877889',
       inquiryDate: '12-08-2026',
-      status: 'New',
-      message: "I'm interested in Scheduling A Viewing For This Property. Would This Weekend Work?",
+      status: 'Contacted',
+      message: "I'm interested in Scheduling A Viewing For Property",
       deleteDate: '11-02-2026'
     },
     {
@@ -37,7 +37,7 @@ const Inquiries = () => {
       propertyInterested: 'Modern Downtown Apartment',
       phone: '91989898989',
       inquiryDate: '11-02-2026',
-      status: 'Contacted',
+      status: 'New',
       message: 'Please send me more details about the apartment.',
       deleteDate: '11-02-2026'
     },
@@ -48,7 +48,7 @@ const Inquiries = () => {
       propertyInterested: 'Suburban Family Home',
       phone: '91777777777',
       inquiryDate: '10-02-2025',
-      status: 'Follow-up',
+      status: 'Closed',
       message: 'Can you provide floor plans?',
       deleteDate: '11-02-2025'
     },
@@ -59,7 +59,7 @@ const Inquiries = () => {
       propertyInterested: 'Mountain View Estate',
       phone: '91666666666',
       inquiryDate: '09-02-2026',
-      status: 'Converted',
+      status: 'New',
       message: 'I would like to schedule a virtual tour.',
       deleteDate: '11-02-2026'
     },
@@ -70,7 +70,7 @@ const Inquiries = () => {
       propertyInterested: 'Urban Loft',
       phone: '91555555555',
       inquiryDate: '08-02-2024',
-      status: 'Lost',
+      status: 'Contacted',
       message: 'Is there parking available?',
       deleteDate: '11-02-2024'
     },
@@ -184,45 +184,33 @@ const Inquiries = () => {
     switch(status) {
       case 'New': 
         return { 
-          backgroundColor: '#E9F8FF', 
+          backgroundColor: '#E0ECFF', 
           color: '#272A2F',
-          border: '1px solid #BEE3F8'
+          
         };
       case 'Contacted': 
         return { 
-          backgroundColor: '#C5FAC9', 
-          color: '#151816',
-          border: '1px solid #9AE6B4'
+          backgroundColor: '#D4FFD4', 
+          color: '#000000',
+          
         };
-      case 'Follow-up': 
+      case 'Closed': 
         return { 
-          backgroundColor: '#FFF4CC', 
-          color: '#664D03',
-          border: '1px solid #FBD38D'
+          backgroundColor: '#E5E5E5', 
+          color: '#000000',
+          
         };
       case 'Converted': 
         return { 
           backgroundColor: '#D4EDDA', 
-          color: '#155724',
-          border: '1px solid #C6F6D5'
-        };
-      case 'Lost': 
-        return { 
-          backgroundColor: '#F8D7DA', 
-          color: '#721C24',
-          border: '1px solid #FEB2B2'
-        };
-      case 'Archived': 
-        return { 
-          backgroundColor: '#E2E3E5', 
-          color: '#383D41',
-          border: '1px solid #CBD5E0'
+          color: '#000000',
+         
         };
       default: 
         return { 
           backgroundColor: '#E5E7EB', 
-          color: '#374151',
-          border: '1px solid #D1D5DB'
+          color: '#000000',
+          
         };
     }
   };
@@ -482,15 +470,15 @@ const formatDate = (dateString) => {
     },
     // Email column
     emailHeaderCell: {
-      width: '250px',
-      minWidth: '250px',
+      width: '200px',
+      minWidth: '200px',
       padding: '8px 15px',
       gap: '4px',
       borderRight: '1px solid #E5E7EB',
     },
     emailCell: {
-      width: '250px',
-      minWidth: '250px',
+      width: '200px',
+      minWidth: '200px',
       padding: '8px 15px',
       gap: '4px',
       borderRight: '1px solid #E5E7EB',
@@ -501,14 +489,14 @@ const formatDate = (dateString) => {
       lineHeight: '140%',
     },
     // Property Interested column
-    propertyHeaderCell: {
+    messageHeaderCell: {
       width: '250px',
       minWidth: '250px',
       padding: '8px 15px',
       justifyContent: 'space-between',
       borderRight: '1px solid #E5E7EB',
     },
-    propertyCell: {
+    messageCell: {
       width: '250px',
       minWidth: '250px',
       padding: '8px 15px',
@@ -983,314 +971,134 @@ const formatDate = (dateString) => {
         <div style={styles.tableContainer}>
           <table style={styles.table}>
             <thead style={styles.tableHeaderRow}>
-              <tr>
-                {/* Checkbox Column */}
-                <th style={{ ...styles.tableHeaderCell, ...styles.checkboxHeaderCell }}>
-                  <input
-                    type="checkbox"
-                    style={styles.checkbox}
-                    checked={selectedInquiries.length === currentInquiries.length && currentInquiries.length > 0}
-                    onChange={handleSelectAll}
-                  />
-                </th>
-                
-                {/* Name Column */}
-                <th 
-                  style={{ ...styles.tableHeaderCell, ...styles.nameHeaderCell }}
-                  onClick={() => handleSort('name')}
-                >
-                  <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Name</div>
-                    <div style={styles.sortIconsContainer}>
-                      <img 
-                        src={AscendingIcon} 
-                        alt="Sort Ascending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'name' && sortConfig.direction === 'asc' && styles.activeSortIcon),
-                        }}
-                      />
-                      <img 
-                        src={DescendingIcon} 
-                        alt="Sort Descending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'name' && sortConfig.direction === 'desc' && styles.activeSortIcon),
-                        }}
-                      />
-                    </div>
-                  </div>
-                </th>
-                
-                {/* Email Column */}
-                <th 
-                  style={{ ...styles.tableHeaderCell, ...styles.emailHeaderCell }}
-                  onClick={() => handleSort('email')}
-                >
-                  <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Email ID</div>
-                    <div style={styles.sortIconsContainer}>
-                      <img 
-                        src={AscendingIcon} 
-                        alt="Sort Ascending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'email' && sortConfig.direction === 'asc' && styles.activeSortIcon),
-                        }}
-                      />
-                      <img 
-                        src={DescendingIcon} 
-                        alt="Sort Descending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'email' && sortConfig.direction === 'desc' && styles.activeSortIcon),
-                        }}
-                      />
-                    </div>
-                  </div>
-                </th>
-                
-                {/* Property Interested Column */}
-                <th 
-                  style={{ ...styles.tableHeaderCell, ...styles.propertyHeaderCell }}
-                  onClick={() => handleSort('propertyInterested')}
-                >
-                  <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Property Interested</div>
-                    <div style={styles.sortIconsContainer}>
-                      <img 
-                        src={AscendingIcon} 
-                        alt="Sort Ascending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'propertyInterested' && sortConfig.direction === 'asc' && styles.activeSortIcon),
-                        }}
-                      />
-                      <img 
-                        src={DescendingIcon} 
-                        alt="Sort Descending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'propertyInterested' && sortConfig.direction === 'desc' && styles.activeSortIcon),
-                        }}
-                      />
-                    </div>
-                  </div>
-                </th>
-                
-                {/* Phone Column */}
-                <th 
-                  style={{ ...styles.tableHeaderCell, ...styles.phoneHeaderCell }}
-                >
-                  <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Phone</div>
-                  </div>
-                </th>
-                
-                {/* Inquiry Date Column */}
-                <th 
-                  style={{ ...styles.tableHeaderCell, ...styles.dateHeaderCell }}
-                  onClick={() => handleSort('inquiryDate')}
-                >
-                  <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Inquiry Date</div>
-                    <div style={styles.sortIconsContainer}>
-                      <img 
-                        src={AscendingIcon} 
-                        alt="Sort Ascending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'inquiryDate' && sortConfig.direction === 'asc' && styles.activeSortIcon),
-                        }}
-                      />
-                      <img 
-                        src={DescendingIcon} 
-                        alt="Sort Descending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'inquiryDate' && sortConfig.direction === 'desc' && styles.activeSortIcon),
-                        }}
-                      />
-                    </div>
-                  </div>
-                </th>
-                
-                {/* Status Column */}
-                <th 
-                  style={{ ...styles.tableHeaderCell, ...styles.statusHeaderCell }}
-                  onClick={() => handleSort('status')}
-                >
-                  <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Status</div>
-                    <div style={styles.sortIconsContainer}>
-                      <img 
-                        src={AscendingIcon} 
-                        alt="Sort Ascending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'status' && sortConfig.direction === 'asc' && styles.activeSortIcon),
-                        }}
-                      />
-                      <img 
-                        src={DescendingIcon} 
-                        alt="Sort Descending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'status' && sortConfig.direction === 'desc' && styles.activeSortIcon),
-                        }}
-                      />
-                    </div>
-                  </div>
-                </th>
-                
-                {/* Delete Date Column */}
-                <th 
-                  style={{ ...styles.tableHeaderCell, ...styles.deleteDateHeaderCell }}
-                  onClick={() => handleSort('deleteDate')}
-                >
-                  <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Delete Date</div>
-                    <div style={styles.sortIconsContainer}>
-                      <img 
-                        src={AscendingIcon} 
-                        alt="Sort Ascending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'deleteDate' && sortConfig.direction === 'asc' && styles.activeSortIcon),
-                        }}
-                      />
-                      <img 
-                        src={DescendingIcon} 
-                        alt="Sort Descending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'deleteDate' && sortConfig.direction === 'desc' && styles.activeSortIcon),
-                        }}
-                      />
-                    </div>
-                  </div>
-                </th>
-                
-                {/* Actions Column */}
-                <th style={{ ...styles.tableHeaderCell, ...styles.actionsHeaderCell }}>
-                  <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Actions</div>
-                  </div>
-                </th>
-              </tr>
-            </thead>
+  <tr>
+    {/* Checkbox Column */}
+    <th style={{ ...styles.tableHeaderCell, ...styles.checkboxHeaderCell }}>
+      <input
+        type="checkbox"
+        style={styles.checkbox}
+        checked={selectedInquiries.length === currentInquiries.length && currentInquiries.length > 0}
+        onChange={handleSelectAll}
+      />
+    </th>
+
+    {/* Name */}
+    <th 
+      style={{ ...styles.tableHeaderCell, ...styles.nameHeaderCell }}
+      onClick={() => handleSort('name')}
+    >
+      <div style={styles.headerCellContent}>
+        <div style={styles.headerTextContainer}>Name</div>
+      </div>
+    </th>
+
+    {/* Email */}
+    <th 
+      style={{ ...styles.tableHeaderCell, ...styles.emailHeaderCell }}
+      onClick={() => handleSort('email')}
+    >
+      <div style={styles.headerCellContent}>
+        <div style={styles.headerTextContainer}>Email</div>
+      </div>
+    </th>
+
+    {/* Message */}
+    <th 
+    style={{ ...styles.tableHeaderCell, ...styles.messageHeaderCell }}
+    onClick={() => handleSort('message')}
+    >
+      <div style={styles.headerCellContent}>
+        <div style={styles.headerTextContainer}>Message</div>
+      </div>
+    </th>
+
+    {/* Date */}
+    <th 
+      style={{ ...styles.tableHeaderCell, ...styles.dateHeaderCell }}
+      onClick={() => handleSort('inquiryDate')}
+    >
+      <div style={styles.headerCellContent}>
+        <div style={styles.headerTextContainer}>Date</div>
+      </div>
+    </th>
+
+    {/* Phone */}
+    <th style={{ ...styles.tableHeaderCell, ...styles.phoneHeaderCell }}>Phone</th>
+
+    {/* Status */}
+    <th 
+      style={{ ...styles.tableHeaderCell, ...styles.statusHeaderCell }}
+      onClick={() => handleSort('status')}
+    >
+      <div style={styles.headerCellContent}>
+        <div style={styles.headerTextContainer}>Status</div>
+      </div>
+    </th>
+
+    {/* Actions */}
+    <th style={{ ...styles.tableHeaderCell, ...styles.actionsHeaderCell }}>Actions</th>
+  </tr>
+</thead>
+
             <tbody>
-              {currentInquiries.map((inquiry) => {
-                const statusStyle = getStatusButtonStyle(inquiry.status);
-                return (
-                  <tr 
-                    key={inquiry.id}
-                    style={{ 
-                      transition: 'background-color 0.3s ease',
-                      height: '62px',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F9FAFB'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                  >
-                    {/* Checkbox Cell */}
-                    <td style={styles.checkboxCell}>
-                      <input
-                        type="checkbox"
-                        style={styles.checkbox}
-                        checked={selectedInquiries.includes(inquiry.id)}
-                        onChange={() => handleSelectInquiry(inquiry.id)}
-                      />
-                    </td>
-                    
-                    {/* Name Cell */}
-                    <td style={styles.nameCell}>
-                      {inquiry.name}
-                    </td>
-                    
-                    {/* Email Cell */}
-                    <td style={styles.emailCell}>
-                      {inquiry.email}
-                    </td>
-                    
-                    {/* Property Interested Cell */}
-                    <td style={styles.propertyCell}>
-                      {inquiry.propertyInterested}
-                    </td>
-                    
-                    {/* Phone Cell */}
-                    <td style={styles.phoneCell}>
-                      {inquiry.phone}
-                    </td>
-                    
-                    {/* Inquiry Date Cell */}
-                    <td style={styles.dateCell}>
-                      {formatDate(inquiry.inquiryDate)}
-                    </td>
-                    
-                    {/* Status Cell */}
-                    <td style={styles.statusCell}>
-                      <div 
-                        style={{
-                          ...styles.statusButton,
-                          ...statusStyle,
-                        }}
-                      >
-                        {inquiry.status}
-                      </div>
-                    </td>
-                    
-                    {/* Delete Date Cell */}
-                    <td style={styles.deleteDateCell}>
-                      {inquiry.deleteDate}
-                    </td>
-                    
-                    {/* Actions Cell - Only View and Delete */}
-                    <td style={styles.actionsCell}>
-                      <div style={styles.actionsContainer}>
-                        <button 
-                          style={{ ...styles.actionButton, ...styles.viewButton }}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = '#EFF6FF'}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                          title="View Details"
-                          onClick={() => handleViewInquiry(inquiry)}
-                        >
-                          <img 
-                            src={ViewIcon} 
-                            alt="View Details" 
-                            style={{ width: '18px', height: '18px' }}
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              const span = document.createElement('span');
-                              span.textContent = '🗑️';
-                              e.target.parentNode.appendChild(span);
-                            }}
-                          />
-                        </button>
-                        <button 
-                          style={{ ...styles.actionButton, ...styles.deleteActionButton }}
-                          onClick={() => handleDeleteSingle(inquiry.id)}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = '#FEF2F2'}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                          title="Delete"
-                        >
-                          <img 
-                            src={DeleteActionIcon} 
-                            alt="Delete" 
-                            style={{ width: '18px', height: '18px' }}
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              const span = document.createElement('span');
-                              span.textContent = '🗑️';
-                              e.target.parentNode.appendChild(span);
-                            }}
-                          />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
+  {currentInquiries.map((inquiry) => {
+    const statusStyle = getStatusButtonStyle(inquiry.status);
+    return (
+      <tr key={inquiry.id} style={{ height: '62px' }}>
+        {/* Checkbox */}
+        <td style={styles.checkboxCell}>
+          <input
+            type="checkbox"
+            style={styles.checkbox}
+            checked={selectedInquiries.includes(inquiry.id)}
+            onChange={() => handleSelectInquiry(inquiry.id)}
+          />
+        </td>
+
+        {/* Name */}
+        <td style={styles.nameCell}>{inquiry.name}</td>
+
+        {/* Email */}
+        <td style={styles.emailCell}>{inquiry.email}</td>
+
+        {/* Message */}
+        <td style={{ padding: '8px 15px', borderRight: '1px solid #E5E7EB', borderTop: '1px solid #E5E7EB' }}>
+          {inquiry.message.length > 50 ? inquiry.message.substring(0, 50) + "..." : inquiry.message}
+        </td>
+
+        {/* Date */}
+        <td style={styles.dateCell}>{formatDate(inquiry.inquiryDate)}</td>
+
+        {/* Phone */}
+        <td style={styles.phoneCell}>{inquiry.phone}</td>
+
+        {/* Status */}
+        <td style={styles.statusCell}>
+          <div style={{ ...styles.statusButton, ...statusStyle }}>{inquiry.status}</div>
+        </td>
+
+        {/* Actions */}
+        <td style={styles.actionsCell}>
+          <div style={styles.actionsContainer}>
+            <button 
+              style={{ ...styles.actionButton, ...styles.viewButton }}
+              onClick={() => handleViewInquiry(inquiry)}
+            >
+              <img src={ViewIcon} alt="View" style={{ width: '18px', height: '18px' }} />
+            </button>
+            <button 
+              style={{ ...styles.actionButton, ...styles.deleteActionButton }}
+              onClick={() => handleDeleteSingle(inquiry.id)}
+            >
+              <img src={DeleteActionIcon} alt="Delete" style={{ width: '18px', height: '18px' }} />
+            </button>
+          </div>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
+
           </table>
         </div>
 
@@ -1453,11 +1261,10 @@ const formatDate = (dateString) => {
                       justifyContent: 'space-between',
                     }}
                     onClick={() => {
-                      const newStatus = selectedInquiry.status === 'New' ? 'Contacted' : 
-                                       selectedInquiry.status === 'Contacted' ? 'Follow-up' :
-                                       selectedInquiry.status === 'Follow-up' ? 'Converted' :
-                                       selectedInquiry.status === 'Converted' ? 'Lost' :
-                                       selectedInquiry.status === 'Lost' ? 'Archived' : 'New';
+                      const statuses = ['New', 'Contacted', 'Closed', 'Converted'];
+const currentIndex = statuses.indexOf(selectedInquiry.status);
+const newStatus = statuses[(currentIndex + 1) % statuses.length];
+
                       
                       const updatedInquiries = inquiries.map(inquiry => 
                         inquiry.id === selectedInquiry.id 
