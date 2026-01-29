@@ -8,19 +8,43 @@ import InquiryIcon from "../../assets/icons/Inquiry.svg";
 import LogoutIcon from "../../assets/icons/Logout.svg";
 
 const AdminSidebar = ({ isOpen, onClose }) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const sidebarRef = useRef(null);
 
-  const handleResize = () => {
-    const mobile = window.innerWidth <= 768;
+  // Device breakpoints
+  const checkDeviceType = () => {
+    const width = window.innerWidth;
+    
+    // Mobile: <= 768px (iPhone, small Android)
+    // Tablet: 769px - 1024px (iPad, Surface Pro 7)
+    // Desktop: > 1024px
+    const mobile = width <= 768;
+    const tablet = width > 768 && width <= 1024;
+    
     setIsMobile(mobile);
-    if (!mobile) onClose(false); // ensure sidebar open on desktop
+    setIsTablet(tablet);
+    
+    // Auto-manage sidebar state based on device
+    if (mobile) {
+      // Mobile: close sidebar by default
+      onClose(false);
+    } else if (tablet) {
+      // Tablet: can be open or closed based on previous state
+      // But start closed on medium tablets
+      if (width <= 834) { // iPad Air width
+        onClose(false);
+      }
+    } else {
+      // Desktop: always open
+      onClose(true);
+    }
   };
 
-  // Close sidebar if clicked outside
+  // Close sidebar if clicked outside on mobile/tablet
   const handleClickOutside = (event) => {
     if (
-      isMobile &&
+      (isMobile || isTablet) &&
       isOpen &&
       sidebarRef.current &&
       !sidebarRef.current.contains(event.target)
@@ -30,13 +54,20 @@ const AdminSidebar = ({ isOpen, onClose }) => {
   };
 
   useEffect(() => {
-    window.addEventListener("resize", handleResize);
+    
+    
+    // Add event listeners
+    window.addEventListener("resize", checkDeviceType);
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    // Cleanup
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", checkDeviceType);
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, [isMobile, isOpen]);
+  }, [isMobile, isTablet, isOpen]);
 
   const menuItems = [
     { id: 1, name: "Dashboard", path: "/admin/dashboard", icon: DashboardIcon },
@@ -45,9 +76,22 @@ const AdminSidebar = ({ isOpen, onClose }) => {
     { id: 4, name: "Logout", path: "/admin/login", icon: LogoutIcon },
   ];
 
+  // Responsive sidebar width based on device
+  const getSidebarWidth = () => {
+    if (isMobile) return "280px";
+    if (isTablet) {
+      // Different widths for different tablet sizes
+      const width = window.innerWidth;
+      if (width <= 834) return "280px"; // iPad Air (834px width)
+      if (width <= 1024) return "300px"; // iPad Pro 11" (1024px width)
+      return "300px";
+    }
+    return "265px"; // Desktop
+  };
+
   const styles = {
     overlay: {
-      display: isMobile && isOpen ? "block" : "none",
+      display: (isMobile || isTablet) && isOpen ? "block" : "none",
       position: "fixed",
       top: 0,
       left: 0,
@@ -55,83 +99,94 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       height: "100vh",
       backgroundColor: "rgba(0,0,0,0.3)",
       zIndex: 999,
+      backdropFilter: "blur(2px)", // Adds subtle blur effect
     },
     sidebar: {
-      width: "265px",
+      width: getSidebarWidth(),
       height: "100vh",
       backgroundColor: "#FFFFFF",
       display: "flex",
       flexDirection: "column",
       borderRight: "1px solid #EAEAEA",
       overflow: "hidden",
-      position: isMobile ? "fixed" : "relative",
+      position: isMobile || isTablet ? "fixed" : "relative",
       top: 0,
-      left: isOpen ? 0 : "-300px",
-      transition: "left 0.3s ease",
+      left: isMobile || isTablet ? (isOpen ? 0 : `-${getSidebarWidth()}`) : 0,
+      transition: isMobile || isTablet ? "left 0.3s ease" : "none",
       zIndex: 1000,
+      boxShadow: (isMobile || isTablet) && isOpen ? "2px 0 15px rgba(0,0,0,0.1)" : "none",
     },
     logoSection: {
-      height: "80px",
+      height: isMobile ? "70px" : "80px",
+      minHeight: isMobile ? "70px" : "80px",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       borderBottom: "1px solid #EAEAEA",
+      padding: isMobile ? "0 20px" : "0",
     },
     logo: {
-      height: "42px",
+      height: isMobile ? "36px" : "42px",
       objectFit: "contain",
+      maxWidth: "100%",
     },
     menuSection: {
       flex: 1,
-      paddingTop: "32px",
+      paddingTop: isMobile ? "24px" : "32px",
+      overflowY: "auto",
+      paddingBottom: isMobile ? "20px" : "0",
     },
     menuList: {
       listStyle: "none",
       padding: 0,
       margin: 0,
     },
-    menuItem: { marginBottom: "16px" },
+    menuItem: { 
+      marginBottom: isMobile ? "12px" : "16px",
+      padding: "0 8px",
+    },
     menuLink: {
       display: "flex",
       alignItems: "center",
-      gap: "14px",
-      padding: "14px 20px",
-      margin: "0 24px",
+      gap: isMobile ? "12px" : "14px",
+      padding: isMobile ? "12px 16px" : "14px 16px",
+      margin: isMobile ? "0 12px" : "0 16px",
       textDecoration: "none",
-      fontSize: "15px",
+      fontSize: isMobile ? "14px" : "15px",
       fontWeight: "500",
       color: "#111",
       borderRadius: "10px",
       border: "1px solid transparent",
       transition: "all 0.2s ease",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
     },
-    activeMenuLink: { border: "1px solid #CDA1F8", color: "#111" },
-    menuIcon: { width: "20px", height: "20px" },
-    logoutSection: {
-      padding: "24px",
-      borderTop: "1px solid #EAEAEA",
-    },
-    logoutButton: {
-      width: "100%",
-      display: "flex",
-      alignItems: "center",
-      gap: "14px",
-      padding: "14px 20px",
-      backgroundColor: "transparent",
-      border: "1px solid transparent",
-      borderRadius: "10px",
-      cursor: "pointer",
-      fontSize: "15px",
-      fontWeight: "500",
+    activeMenuLink: { 
+      border: "1px solid #CDA1F8", 
       color: "#111",
-      transition: "all 0.2s ease",
+      backgroundColor: "rgba(205, 161, 248, 0.1)",
+    },
+    menuIcon: { 
+      width: isMobile ? "18px" : "20px", 
+      height: isMobile ? "18px" : "20px",
+      flexShrink: 0,
     },
   };
 
   return (
     <>
-      {/* Overlay */}
-      <div style={styles.overlay}></div>
+      {/* Overlay for mobile and tablet */}
+      {(isMobile || isTablet) && isOpen && (
+        <div 
+          style={styles.overlay} 
+          onClick={() => onClose(false)}
+          onTouchStart={() => onClose(false)}
+          role="button"
+          aria-label="Close sidebar"
+          tabIndex={0}
+        ></div>
+      )}
 
       <aside ref={sidebarRef} style={styles.sidebar}>
         {/* LOGO */}
@@ -150,9 +205,14 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                     ...styles.menuLink,
                     ...(isActive ? styles.activeMenuLink : {}),
                   })}
+                  onClick={() => {
+                    if (isMobile || isTablet) {
+                      onClose(false);
+                    }
+                  }}
                 >
                   <img src={item.icon} alt={item.name} style={styles.menuIcon} />
-                  {item.name}
+                  <span style={{ flex: 1 }}>{item.name}</span>
                 </NavLink>
               </li>
             ))}

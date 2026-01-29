@@ -55,7 +55,7 @@ const AdminLayout = () => {
         <div
           style={{
             flex: 1,
-            padding: "24px 42px",
+            padding: "16px 16px",
             overflowY: "auto",
           }}
         >

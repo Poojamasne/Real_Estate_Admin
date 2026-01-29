@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 // Import SVG icons
@@ -61,7 +61,6 @@ const Properties = () => {
       status: 'Rented',
       addedDate: '11-02-2026'
     },
-    
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -69,11 +68,8 @@ const Properties = () => {
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const itemsPerPage = 10;
-  
-  // Modal state
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState('add'); // 'add' or 'edit'
+  const [modalType, setModalType] = useState('add');
   const [editingProperty, setEditingProperty] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -84,13 +80,26 @@ const Properties = () => {
     status: 'Available',
     description: ''
   });
-
-  // File upload state
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
-
-  // NEW: State for filter dropdown
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Responsive items per page
+  const getItemsPerPage = () => {
+    if (windowWidth < 640) return 5;
+    if (windowWidth < 1024) return 7;
+    return 10;
+  };
+  
+  const itemsPerPage = getItemsPerPage();
 
   // Sort properties
   const sortedProperties = [...properties].sort((a, b) => {
@@ -174,18 +183,16 @@ const Properties = () => {
     setSortConfig({ key, direction });
   };
 
-  // NEW: Handle status filter change
+  // Handle status filter change
   const handleStatusFilterChange = (status) => {
     setStatusFilter(status);
     setShowFilterDropdown(false);
-    // Reset to first page when filter changes
     setCurrentPage(1);
   };
 
   // File upload handlers
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
-    // You can add validation here for file types and size
     setUploadedFiles(prev => [...prev, ...files]);
   };
 
@@ -203,7 +210,6 @@ const Properties = () => {
     e.preventDefault();
     setIsDragging(false);
     const files = Array.from(e.dataTransfer.files);
-    // Filter for image files only
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
     setUploadedFiles(prev => [...prev, ...imageFiles]);
   };
@@ -261,12 +267,9 @@ const Properties = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Handle file uploads here
-    // You can upload the files to a server or handle them as needed
     console.log('Uploaded files:', uploadedFiles);
     
     if (modalType === 'add') {
-      // Add new property
       const newProperty = {
         id: properties.length + 1,
         name: formData.name,
@@ -279,7 +282,6 @@ const Properties = () => {
       
       setProperties(prev => [...prev, newProperty]);
     } else {
-      // Edit existing property
       setProperties(prev => prev.map(property => 
         property.id === editingProperty.id 
           ? {
@@ -304,81 +306,96 @@ const Properties = () => {
         return { 
           backgroundColor: '#C5FAC9', 
           color: '#151816',
-          width: '198px',
-          height: '39px',
-          borderRadius: '9px',
-          gap: '10px'
         };
       case 'Rented': 
         return { 
           backgroundColor: '#E9F8FF', 
           color: '#272A2F',
-          width: '198px',
-          height: '39px',
-          borderRadius: '9px',
-          gap: '10px'
         };
       case 'Sold': 
         return { 
           backgroundColor: '#FFBBBB', 
           color: '#282425',
-          width: '198px',
-          height: '39px',
-          borderRadius: '9px',
-          gap: '10px'
         };
       default: 
         return { 
           backgroundColor: '#E5E7EB', 
           color: '#374151',
-          width: '198px',
-          height: '39px',
-          borderRadius: '9px',
-          gap: '10px'
         };
     }
   };
 
-  // CSS Styles
+  // Generate page numbers for mobile
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = windowWidth < 640 ? 3 : 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) pageNumbers.push(i);
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 3; i++) pageNumbers.push(i);
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        for (let i = totalPages - 2; i <= totalPages; i++) pageNumbers.push(i);
+      } else {
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        pageNumbers.push(currentPage - 1);
+        pageNumbers.push(currentPage);
+        pageNumbers.push(currentPage + 1);
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      }
+    }
+    
+    return pageNumbers;
+  };
+
+  // CSS Styles with responsive adjustments
   const styles = {
     container: {
-      padding: '24px',
+      padding: windowWidth < 640 ? '16px' : '42px',
       minHeight: '100vh',
-      position: 'relative',
       fontFamily: 'Montserrat, Arial, sans-serif',
     },
     headerRow: {
       display: 'flex',
+      flexDirection: windowWidth < 768 ? 'column' : 'row',
       justifyContent: 'space-between',
-      alignItems: 'center',
+      alignItems: windowWidth < 768 ? 'flex-start' : 'center',
       marginBottom: '24px',
+      gap: windowWidth < 768 ? '16px' : '0',
     },
     headerText: {
       display: 'flex',
       flexDirection: 'column',
     },
     title: {
-      fontSize: '28px',
+      fontSize: windowWidth < 640 ? '24px' : windowWidth < 768 ? '26px' : '28px',
       fontWeight: 700,
       color: '#1E293B',
       margin: '0 0 8px 0',
       fontFamily: 'Montserrat',
     },
     subtitle: {
-      fontSize: '16px',
+      fontSize: windowWidth < 640 ? '14px' : '16px',
       color: '#3F74E2',
       margin: 0,
       fontWeight: 500,
       fontFamily: 'Montserrat',
     },
     addPropertyButton: {
-      width: '183px',
+      width: windowWidth < 768 ? '100%' : '183px',
       height: '46px',
       backgroundColor: '#A237FF',
       color: 'white',
       border: 'none',
       borderRadius: '7px',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '14px' : '16px',
       fontWeight: 600,
       cursor: 'pointer',
       display: 'flex',
@@ -391,26 +408,27 @@ const Properties = () => {
       fontFamily: 'Montserrat',
     },
     whiteSection: {
-      width: '1111px',
+      width: '100%',
+      maxWidth: '1111px',
       backgroundColor: 'white',
       borderRadius: '11px',
       border: '1px solid #E2E8F0',
-      padding: '24px',
+      padding: windowWidth < 640 ? '16px' : '24px',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-      position: 'relative',
       margin: '0 auto',
     },
     searchRow: {
       display: 'flex',
-      alignItems: 'center',
+      flexDirection: windowWidth < 768 ? 'column' : 'row',
+      alignItems: windowWidth < 768 ? 'stretch' : 'center',
       justifyContent: 'space-between',
       marginBottom: '24px',
       gap: '16px',
-      position: 'relative', // For dropdown positioning
+      position: 'relative',
     },
     searchContainer: {
       position: 'relative',
-      flex: 1,
+      width: windowWidth < 768 ? '100%' : 'auto',
     },
     searchIcon: {
       position: 'absolute',
@@ -421,7 +439,8 @@ const Properties = () => {
       height: '16px',
     },
     searchInput: {
-      width: '324px',
+      width: '100%',
+      maxWidth: windowWidth < 768 ? '100%' : '324px',
       height: '38px',
       border: '1px solid #E2E8F0',
       borderRadius: '6px',
@@ -431,13 +450,22 @@ const Properties = () => {
       outline: 'none',
       backgroundColor: 'white',
       fontFamily: 'Montserrat',
+      boxSizing: 'border-box',
     },
-    // Updated filter button styles
+    controlsGroup: {
+      display: 'flex',
+      flexDirection: windowWidth < 640 ? 'column' : 'row',
+      gap: '16px',
+      alignItems: 'stretch',
+      width: windowWidth < 768 ? '100%' : 'auto',
+    },
     filterButtonContainer: {
       position: 'relative',
+      width: windowWidth < 768 ? '100%' : 'auto',
     },
     allFilterButton: {
-      width: '208px',
+       minWidth : '180px',
+      width: '100%',
       height: '39px',
       backgroundColor: 'white',
       border: '1px solid #E2E8F0',
@@ -451,19 +479,18 @@ const Properties = () => {
       padding: '0 16px',
       transition: 'border-color 0.3s ease',
       fontFamily: 'Montserrat',
-      position: 'relative',
     },
     filterDropdown: {
       position: 'absolute',
       top: '100%',
       right: 0,
+      left: 0,
       marginTop: '4px',
       backgroundColor: 'white',
       border: '1px solid #E2E8F0',
       borderRadius: '6px',
       boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
       zIndex: 100,
-      minWidth: '200px',
       overflow: 'hidden',
     },
     filterOption: {
@@ -476,16 +503,13 @@ const Properties = () => {
       transition: 'background-color 0.3s ease',
       backgroundColor: 'white',
     },
-    filterOptionHover: {
-      backgroundColor: '#F9FAFB',
-    },
     filterOptionActive: {
       backgroundColor: '#F3F4F6',
       fontWeight: 600,
       color: '#1E293B',
     },
     deleteButton: {
-      width: '163px',
+      width: '100%',
       height: '40px',
       backgroundColor: '#FF3C3C',
       color: 'white',
@@ -508,21 +532,23 @@ const Properties = () => {
       cursor: 'not-allowed',
     },
     showingText: {
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '13px' : '14px',
       color: '#64748B',
       marginBottom: '16px',
       fontFamily: 'Montserrat',
+      textAlign: windowWidth < 640 ? 'center' : 'left',
     },
     tableContainer: {
       width: '100%',
-      overflowY: 'auto',
+      overflowX: 'auto',
       marginBottom: '24px',
+      WebkitOverflowScrolling: 'touch',
     },
     table: {
       width: '100%',
       borderCollapse: 'separate',
       borderSpacing: 0,
-      minWidth: '1100px',
+      minWidth: windowWidth < 768 ? '900px' : '1100px',
       border: '1px solid #E5E7EB',
       borderRadius: '8px',
       overflow: 'hidden',
@@ -536,7 +562,7 @@ const Properties = () => {
     },
     tableHeaderCell: {
       textAlign: 'left',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '12px' : '14px',
       fontWeight: 600,
       color: '#374151',
       whiteSpace: 'nowrap',
@@ -545,6 +571,7 @@ const Properties = () => {
       height: '62px',
       boxSizing: 'border-box',
       borderRight: '1px solid #E5E7EB',
+      padding: '8px 12px',
     },
     headerCellContent: {
       display: 'flex',
@@ -552,165 +579,124 @@ const Properties = () => {
       justifyContent: 'space-between',
       width: '100%',
     },
-    headerTextContainer: {
-      flex: 1,
-    },
     sortIconsContainer: {
       display: 'flex',
       flexDirection: 'column',
       marginLeft: '8px',
     },
-    // Checkbox column
     checkboxHeaderCell: {
-      width: '40px',
-      minWidth: '40px',
-      padding: '8px 11px',
-      textAlign: 'center',
-      borderRight: '1px solid #E5E7EB',
+      width: windowWidth < 640 ? '30px' : '40px',
+      minWidth: windowWidth < 640 ? '30px' : '40px',
+      padding: '8px 8px',
     },
     checkboxCell: {
-      width: '40px',
-      minWidth: '40px',
-      padding: '8px 11px',
+      width: windowWidth < 640 ? '30px' : '40px',
+      minWidth: windowWidth < 640 ? '30px' : '40px',
+      padding: '8px 8px',
       textAlign: 'center',
       borderRight: '1px solid #E5E7EB',
       borderTop: '1px solid #E5E7EB',
     },
-    // Property Name column
     propertyNameHeaderCell: {
-      width: '311px',
-      minWidth: '311px',
-      padding: '8px 8px 8px 11px',
-      gap: '8px',
-      borderRight: '1px solid #E5E7EB',
+      width: windowWidth < 1024 ? '200px' : '311px',
+      minWidth: windowWidth < 1024 ? '200px' : '311px',
     },
     propertyNameCell: {
-      width: '311px',
-      minWidth: '311px',
-      padding: '8px 8px 8px 11px',
-      gap: '8px',
+      width: windowWidth < 1024 ? '200px' : '311px',
+      minWidth: windowWidth < 1024 ? '200px' : '311px',
+      padding: '8px 12px',
       borderRight: '1px solid #E5E7EB',
       borderTop: '1px solid #E5E7EB',
       fontFamily: 'Montserrat',
       fontWeight: 400,
-      fontSize: '15px',
+      fontSize: windowWidth < 640 ? '13px' : '15px',
       lineHeight: '140%',
     },
-    // Location column
     locationHeaderCell: {
-      width: '299px',
-      minWidth: '299px',
-      padding: '8px 15px',
-      gap: '4px',
-      borderRight: '1px solid #E5E7EB',
+      width: windowWidth < 1024 ? '180px' : '299px',
+      minWidth: windowWidth < 1024 ? '180px' : '299px',
     },
     locationCell: {
-      width: '299px',
-      minWidth: '299px',
-      padding: '8px 15px',
-      gap: '4px',
+      width: windowWidth < 1024 ? '180px' : '299px',
+      minWidth: windowWidth < 1024 ? '180px' : '299px',
+      padding: '8px 12px',
       borderRight: '1px solid #E5E7EB',
       borderTop: '1px solid #E5E7EB',
       fontFamily: 'Montserrat',
       fontWeight: 400,
-      fontSize: '15px',
+      fontSize: windowWidth < 640 ? '13px' : '15px',
       lineHeight: '140%',
     },
-    // Price column
     priceHeaderCell: {
-      width: '206px',
-      minWidth: '206px',
-      padding: '8px 15px',
-      justifyContent: 'space-between',
-      borderRight: '1px solid #E5E7EB',
-      borderLeft: '1px solid #E5E7EB',
+      width: windowWidth < 1024 ? '120px' : '206px',
+      minWidth: windowWidth < 1024 ? '120px' : '206px',
     },
     priceCell: {
-      width: '206px',
-      minWidth: '206px',
-      padding: '8px 15px',
-      justifyContent: 'space-between',
+      width: windowWidth < 1024 ? '120px' : '206px',
+      minWidth: windowWidth < 1024 ? '120px' : '206px',
+      padding: '8px 12px',
       borderRight: '1px solid #E5E7EB',
-      borderLeft: '1px solid #E5E7EB',
       borderTop: '1px solid #E5E7EB',
       fontFamily: 'Montserrat',
       fontWeight: 400,
-      fontSize: '15px',
+      fontSize: windowWidth < 640 ? '13px' : '15px',
       lineHeight: '140%',
     },
-    // Details column
     detailsHeaderCell: {
-      width: '455px',
-      minWidth: '455px',
-      padding: '8px 15px',
-      justifyContent: 'space-between',
-      borderRight: '1px solid #E5E7EB',
-      borderLeft: '1px solid #E5E7EB',
+      width: windowWidth < 1024 ? '150px' : '455px',
+      minWidth: windowWidth < 1024 ? '150px' : '455px',
     },
     detailsCell: {
-      width: '455px',
-      minWidth: '455px',
-      padding: '8px 15px',
-      justifyContent: 'space-between',
+      width: windowWidth < 1024 ? '150px' : '455px',
+      minWidth: windowWidth < 1024 ? '150px' : '455px',
+      padding: '8px 12px',
       borderRight: '1px solid #E5E7EB',
-      borderLeft: '1px solid #E5E7EB',
       borderTop: '1px solid #E5E7EB',
       fontFamily: 'Montserrat',
       fontWeight: 400,
-      fontSize: '15px',
+      fontSize: windowWidth < 640 ? '13px' : '15px',
       lineHeight: '140%',
     },
-    // Status column
     statusHeaderCell: {
-      width: '239px',
-      minWidth: '239px',
-      padding: '10px 10px 10px 15px',
-      justifyContent: 'space-between',
-      borderRight: '1px solid #E5E7EB',
+      width: windowWidth < 1024 ? '100px' : '239px',
+      minWidth: windowWidth < 1024 ? '100px' : '239px',
     },
     statusCell: {
-      width: '239px',
-      minWidth: '239px',
-      padding: '10px 10px 10px 15px',
-      justifyContent: 'space-between',
+      width: windowWidth < 1024 ? '100px' : '239px',
+      minWidth: windowWidth < 1024 ? '100px' : '239px',
+      padding: '8px 12px',
       borderRight: '1px solid #E5E7EB',
       borderTop: '1px solid #E5E7EB',
     },
-    // Added Date column
     addedDateHeaderCell: {
-      width: '150px',
-      minWidth: '150px',
-      padding: '8px 15px',
-      borderRight: '1px solid #E5E7EB',
+      width: windowWidth < 1024 ? '120px' : '150px',
+      minWidth: windowWidth < 1024 ? '120px' : '150px',
     },
     addedDateCell: {
-      width: '150px',
-      minWidth: '150px',
-      padding: '8px 15px',
+      width: windowWidth < 1024 ? '120px' : '150px',
+      minWidth: windowWidth < 1024 ? '120px' : '150px',
+      padding: '8px 12px',
       borderRight: '1px solid #E5E7EB',
       borderTop: '1px solid #E5E7EB',
       fontFamily: 'Montserrat',
       fontWeight: 400,
-      fontSize: '15px',
+      fontSize: windowWidth < 640 ? '13px' : '15px',
       lineHeight: '140%',
     },
-    // Actions column
     actionsHeaderCell: {
-      width: '100px',
-      minWidth: '100px',
-      padding: '8px 15px',
-      textAlign: 'center',
+      width: windowWidth < 640 ? '60px' : '100px',
+      minWidth: windowWidth < 640 ? '60px' : '100px',
     },
     actionsCell: {
-      width: '100px',
-      minWidth: '100px',
-      padding: '8px 15px',
+      width: windowWidth < 640 ? '60px' : '100px',
+      minWidth: windowWidth < 640 ? '60px' : '100px',
+      padding: '8px 8px',
       textAlign: 'center',
       borderTop: '1px solid #E5E7EB',
     },
     sortIcon: {
-      width: '12px',
-      height: '12px',
+      width: windowWidth < 640 ? '10px' : '12px',
+      height: windowWidth < 640 ? '10px' : '12px',
       cursor: 'pointer',
       opacity: 0.5,
       margin: '1px 0',
@@ -719,8 +705,8 @@ const Properties = () => {
       opacity: 1,
     },
     checkbox: {
-      width: '16px',
-      height: '16px',
+      width: windowWidth < 640 ? '14px' : '16px',
+      height: windowWidth < 640 ? '14px' : '16px',
       borderRadius: '4px',
       border: '2px solid #D1D5DB',
       cursor: 'pointer',
@@ -732,16 +718,22 @@ const Properties = () => {
       justifyContent: 'center',
       border: 'none',
       borderRadius: '9px',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '12px' : '14px',
       fontWeight: 500,
       cursor: 'default',
       fontFamily: 'Montserrat',
+      padding: windowWidth < 640 ? '6px 8px' : '8px 16px',
+      width: windowWidth < 1024 ? '80px' : '120px',
+      height: windowWidth < 640 ? '30px' : '36px',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     },
     actionsContainer: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: '12px',
+      gap: windowWidth < 640 ? '4px' : '12px',
     },
     actionButton: {
       background: 'none',
@@ -753,6 +745,8 @@ const Properties = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      minWidth: '32px',
+      minHeight: '32px',
     },
     editButton: {
       color: '#3B82F6',
@@ -762,26 +756,33 @@ const Properties = () => {
     },
     paginationContainer: {
       display: 'flex',
+      flexDirection: windowWidth < 768 ? 'column' : 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       marginTop: 'auto',
+      gap: windowWidth < 768 ? '16px' : '0',
     },
     paginationInfo: {
       fontSize: '14px',
       color: '#64748B',
       fontFamily: 'Montserrat',
+      textAlign: windowWidth < 768 ? 'center' : 'left',
+      order: windowWidth < 768 ? 2 : 1,
     },
     paginationControls: {
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
+      flexWrap: 'wrap',
+      justifyContent: windowWidth < 768 ? 'center' : 'flex-end',
+      order: windowWidth < 768 ? 1 : 2,
     },
     paginationButton: {
-      padding: '8px 16px',
+      padding: windowWidth < 640 ? '6px 12px' : '8px 16px',
       backgroundColor: 'white',
       border: '1px solid #D1D5DB',
       borderRadius: '6px',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '12px' : '14px',
       color: '#374151',
       cursor: 'pointer',
       display: 'flex',
@@ -789,6 +790,7 @@ const Properties = () => {
       gap: '8px',
       transition: 'all 0.3s ease',
       fontFamily: 'Montserrat',
+      whiteSpace: 'nowrap',
     },
     disabledPaginationButton: {
       backgroundColor: '#F3F4F6',
@@ -797,15 +799,15 @@ const Properties = () => {
       borderColor: '#E5E7EB',
     },
     pageNumberButton: {
-      minWidth: '32px',
-      height: '32px',
+      minWidth: '28px',
+      height: '28px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: 'white',
       border: '1px solid #D1D5DB',
       borderRadius: '6px',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '12px' : '14px',
       color: '#374151',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
@@ -817,11 +819,11 @@ const Properties = () => {
       borderColor: '#3B82F6',
     },
     ellipsis: {
-      padding: '0 8px',
+      padding: '0 4px',
       color: '#6B7280',
       fontFamily: 'Montserrat',
     },
-    // Modal styles
+    // Modal styles - Responsive
     modalOverlay: {
       position: 'fixed',
       top: 0,
@@ -833,27 +835,31 @@ const Properties = () => {
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: 1000,
-      padding: '20px',
+      padding: windowWidth < 640 ? '8px' : '20px',
     },
     modalContent: {
       backgroundColor: 'white',
       borderRadius: '12px',
-      width: '600px',
-      maxWidth: '90%',
+      width: '100%',
+      maxWidth: windowWidth < 640 ? '95%' : windowWidth < 768 ? '90%' : '600px',
       maxHeight: '90vh',
       overflowY: 'auto',
       position: 'relative',
       boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
     },
     modalHeader: {
-      padding: '24px 32px 16px',
+      padding: windowWidth < 640 ? '16px 20px' : '24px 32px 16px',
       borderBottom: '1px solid #E5E7EB',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
+      position: 'sticky',
+      top: 0,
+      backgroundColor: 'white',
+      zIndex: 1,
     },
     modalTitle: {
-      fontSize: '24px',
+      fontSize: windowWidth < 640 ? '20px' : '24px',
       fontWeight: 600,
       color: '#1E293B',
       margin: 0,
@@ -871,14 +877,14 @@ const Properties = () => {
       transition: 'background-color 0.3s ease',
     },
     modalBody: {
-      padding: '24px 32px',
+      padding: windowWidth < 640 ? '16px 20px' : '24px 32px',
     },
     formGroup: {
       marginBottom: '20px',
     },
     formLabel: {
       display: 'block',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '13px' : '14px',
       fontWeight: 500,
       color: '#374151',
       marginBottom: '8px',
@@ -886,25 +892,22 @@ const Properties = () => {
     },
     formInput: {
       width: '100%',
-      padding: '12px 16px',
+      padding: windowWidth < 640 ? '10px 12px' : '12px 16px',
       border: '1px solid #D1D5DB',
       borderRadius: '8px',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '14px' : '16px',
       color: '#1E293B',
       outline: 'none',
       transition: 'border-color 0.3s ease',
       fontFamily: 'Montserrat',
       boxSizing: 'border-box',
     },
-    formInputFocus: {
-      borderColor: '#A237FF',
-    },
     formSelect: {
       width: '100%',
-      padding: '12px 16px',
+      padding: windowWidth < 640 ? '10px 12px' : '12px 16px',
       border: '1px solid #D1D5DB',
       borderRadius: '8px',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '14px' : '16px',
       color: '#1E293B',
       outline: 'none',
       backgroundColor: 'white',
@@ -913,56 +916,61 @@ const Properties = () => {
       boxSizing: 'border-box',
     },
     modalFooter: {
-      padding: '16px 32px 24px',
+      padding: windowWidth < 640 ? '12px 20px 16px' : '16px 32px 24px',
       borderTop: '1px solid #E5E7EB',
       display: 'flex',
+      flexDirection: windowWidth < 640 ? 'column-reverse' : 'row',
       justifyContent: 'flex-end',
       gap: '12px',
     },
     submitButton: {
-      padding: '12px 24px',
+      padding: windowWidth < 640 ? '10px 16px' : '12px 24px',
       backgroundColor: '#A237FF',
       color: 'white',
       border: 'none',
       borderRadius: '8px',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '14px' : '16px',
       fontWeight: 600,
       cursor: 'pointer',
       fontFamily: 'Montserrat',
       transition: 'background-color 0.3s ease',
+      width: windowWidth < 640 ? '100%' : 'auto',
     },
     cancelButton: {
-      padding: '12px 24px',
+      padding: windowWidth < 640 ? '10px 16px' : '12px 24px',
       backgroundColor: 'white',
       color: '#374151',
       border: '1px solid #D1D5DB',
       borderRadius: '8px',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '14px' : '16px',
       fontWeight: 600,
       cursor: 'pointer',
       fontFamily: 'Montserrat',
       transition: 'all 0.3s ease',
+      width: windowWidth < 640 ? '100%' : 'auto',
     },
     textArea: {
       width: '100%',
-      padding: '12px 16px',
+      padding: windowWidth < 640 ? '10px 12px' : '12px 16px',
       border: '1px solid #D1D5DB',
       borderRadius: '8px',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '14px' : '16px',
       color: '#1E293B',
       outline: 'none',
       fontFamily: 'Montserrat',
       resize: 'vertical',
-      minHeight: '100px',
+      minHeight: windowWidth < 640 ? '80px' : '100px',
       boxSizing: 'border-box',
     },
     row: {
       display: 'flex',
+      flexDirection: windowWidth < 640 ? 'column' : 'row',
       gap: '16px',
       marginBottom: '20px',
     },
     col: {
       flex: 1,
+      width: windowWidth < 640 ? '100%' : 'auto',
     },
     // Upload section styles
     uploadSection: {
@@ -970,15 +978,15 @@ const Properties = () => {
     },
     uploadLabel: {
       display: 'block',
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '13px' : '14px',
       fontWeight: 500,
       color: '#374151',
       marginBottom: '8px',
       fontFamily: 'Montserrat',
     },
     uploadContainer: {
-      width: '519px',
-      height: '146px',
+      width: '100%',
+      minHeight: windowWidth < 640 ? '120px' : '146px',
       border: '1px dashed #D1D5DB',
       borderRadius: '8px',
       display: 'flex',
@@ -989,6 +997,7 @@ const Properties = () => {
       padding: '10px',
       cursor: 'pointer',
       transition: 'border-color 0.3s ease, background-color 0.3s ease',
+      boxSizing: 'border-box',
     },
     uploadContainerHover: {
       borderColor: '#A237FF',
@@ -1000,18 +1009,25 @@ const Properties = () => {
       color: '#9CA3AF',
     },
     uploadText: {
-      fontSize: '14px',
+      fontSize: windowWidth < 640 ? '13px' : '14px',
       color: '#6B7280',
       fontWeight: 500,
       fontFamily: 'Montserrat',
+      textAlign: 'center',
     },
     uploadSubtext: {
-      fontSize: '12px',
+      fontSize: windowWidth < 640 ? '11px' : '12px',
       color: '#9CA3AF',
       fontFamily: 'Montserrat',
+      textAlign: 'center',
     },
     fileInput: {
       display: 'none',
+    },
+    // Responsive icons
+    responsiveIcon: {
+      width: windowWidth < 640 ? '14px' : '16px',
+      height: windowWidth < 640 ? '14px' : '16px',
     },
   };
 
@@ -1057,84 +1073,85 @@ const Properties = () => {
             />
           </div>
 
-          <button
-            onClick={handleDeleteSelected}
-            disabled={selectedProperties.length === 0}
-            style={{
-              ...styles.deleteButton,
-              ...(selectedProperties.length === 0 && styles.disabledDeleteButton),
-            }}
-            onMouseEnter={(e) => {
-              if (selectedProperties.length > 0) {
-                e.target.style.backgroundColor = '#DC2626';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (selectedProperties.length > 0) {
-                e.target.style.backgroundColor = '#FF3C3C';
-              }
-            }}
-          >
-            <img 
-              src={DeleteIcon} 
-              alt="Delete" 
-              style={{ width: '16px', height: '16px' }}
-              onError={(e) => e.target.style.display = 'none'}
-            />
-            Delete ({selectedProperties.length})
-          </button>
-
-          {/* Filter Button with Dropdown */}
-          <div style={styles.filterButtonContainer}>
-            <button 
-              style={styles.allFilterButton}
-              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              onMouseEnter={(e) => e.target.style.borderColor = '#A237FF'}
-              onMouseLeave={(e) => e.target.style.borderColor = '#E2E8F0'}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={styles.controlsGroup}>
+            <div style={styles.filterButtonContainer}>
+              <button 
+                style={styles.allFilterButton}
+                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                onMouseEnter={(e) => e.target.style.borderColor = '#A237FF'}
+                onMouseLeave={(e) => e.target.style.borderColor = '#E2E8F0'}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <img 
+                    src={FilterIcon} 
+                    alt="Filter" 
+                    style={styles.responsiveIcon}
+                    onError={(e) => e.target.style.display = 'none'}
+                  /> 
+                  <span>{statusFilter}</span>
+                </div>
                 <img 
-                  src={FilterIcon} 
-                  alt="Filter" 
-                  style={{ width: '16px', height: '16px' }}
+                  src={DescendingIcon} 
+                  alt="Dropdown" 
+                  style={{ 
+                    width: '16px', 
+                    height: '16px',
+                    transform: showFilterDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s ease'
+                  }}
                   onError={(e) => e.target.style.display = 'none'}
-                /> 
-                <span>{statusFilter}</span>
-              </div>
+                />
+              </button>
+              
+              {/* Filter Dropdown */}
+              {showFilterDropdown && (
+                <div style={styles.filterDropdown}>
+                  {filterOptions.map((option) => (
+                    <div
+                      key={option}
+                      style={{
+                        ...styles.filterOption,
+                        ...(statusFilter === option && styles.filterOptionActive),
+                      }}
+                      onClick={() => handleStatusFilterChange(option)}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F9FAFB'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 
+                        statusFilter === option ? '#F3F4F6' : 'white'
+                      }
+                    >
+                      {option}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleDeleteSelected}
+              disabled={selectedProperties.length === 0}
+              style={{
+                ...styles.deleteButton,
+                ...(selectedProperties.length === 0 && styles.disabledDeleteButton),
+              }}
+              onMouseEnter={(e) => {
+                if (selectedProperties.length > 0) {
+                  e.target.style.backgroundColor = '#DC2626';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedProperties.length > 0) {
+                  e.target.style.backgroundColor = '#FF3C3C';
+                }
+              }}
+            >
               <img 
-                src={DescendingIcon} 
-                alt="Dropdown" 
-                style={{ 
-                  width: '16px', 
-                  height: '16px',
-                  transform: showFilterDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.3s ease'
-                }}
+                src={DeleteIcon} 
+                alt="Delete" 
+                style={styles.responsiveIcon}
                 onError={(e) => e.target.style.display = 'none'}
               />
+              Delete ({selectedProperties.length})
             </button>
-            
-            {/* Filter Dropdown */}
-            {showFilterDropdown && (
-              <div style={styles.filterDropdown}>
-                {filterOptions.map((option) => (
-                  <div
-                    key={option}
-                    style={{
-                      ...styles.filterOption,
-                      ...(statusFilter === option && styles.filterOptionActive),
-                    }}
-                    onClick={() => handleStatusFilterChange(option)}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F9FAFB'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 
-                      statusFilter === option ? '#F3F4F6' : 'white'
-                    }
-                  >
-                    {option}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
@@ -1152,11 +1169,6 @@ const Properties = () => {
             onClick={() => setShowFilterDropdown(false)}
           />
         )}
-
-        {/* Showing text */}
-        <div style={styles.showingText}>
-          Showing {startIndex + 1} - {Math.min(endIndex, totalProperties)} out of {totalProperties}
-        </div>
 
         {/* Table Container with Scroll and Grid Lines */}
         <div style={styles.tableContainer}>
@@ -1179,7 +1191,7 @@ const Properties = () => {
                   onClick={() => handleSort('name')}
                 >
                   <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Property Name</div>
+                    <div>Property Name</div>
                     <div style={styles.sortIconsContainer}>
                       <img 
                         src={AscendingIcon} 
@@ -1188,13 +1200,6 @@ const Properties = () => {
                           ...styles.sortIcon,
                           ...(sortConfig.key === 'name' && sortConfig.direction === 'asc' && styles.activeSortIcon),
                         }}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          const span = document.createElement('span');
-                          span.textContent = '↑';
-                          span.style.fontSize = '12px';
-                          e.target.parentNode.appendChild(span);
-                        }}
                       />
                       <img 
                         src={DescendingIcon} 
@@ -1202,13 +1207,6 @@ const Properties = () => {
                         style={{
                           ...styles.sortIcon,
                           ...(sortConfig.key === 'name' && sortConfig.direction === 'desc' && styles.activeSortIcon),
-                        }}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          const span = document.createElement('span');
-                          span.textContent = '↓';
-                          span.style.fontSize = '12px';
-                          e.target.parentNode.appendChild(span);
                         }}
                       />
                     </div>
@@ -1221,7 +1219,7 @@ const Properties = () => {
                   onClick={() => handleSort('location')}
                 >
                   <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Location</div>
+                    <div>Location</div>
                     <div style={styles.sortIconsContainer}>
                       <img 
                         src={AscendingIcon} 
@@ -1249,7 +1247,7 @@ const Properties = () => {
                   onClick={() => handleSort('price')}
                 >
                   <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Price</div>
+                    <div>Price</div>
                     <div style={styles.sortIconsContainer}>
                       <img 
                         src={AscendingIcon} 
@@ -1276,25 +1274,7 @@ const Properties = () => {
                   style={{ ...styles.tableHeaderCell, ...styles.detailsHeaderCell }}
                 >
                   <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Details</div>
-                    <div style={styles.sortIconsContainer}>
-                      <img 
-                        src={AscendingIcon} 
-                        alt="Sort Ascending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'Details' && sortConfig.direction === 'asc' && styles.activeSortIcon),
-                        }}
-                      />
-                      <img 
-                        src={DescendingIcon} 
-                        alt="Sort Descending" 
-                        style={{
-                          ...styles.sortIcon,
-                          ...(sortConfig.key === 'Details' && sortConfig.direction === 'desc' && styles.activeSortIcon),
-                        }}
-                      />
-                    </div>
+                    <div>Details</div>
                   </div>
                 </th>
                 
@@ -1304,7 +1284,7 @@ const Properties = () => {
                   onClick={() => handleSort('status')}
                 >
                   <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Status</div>
+                    <div>Status</div>
                     <div style={styles.sortIconsContainer}>
                       <img 
                         src={AscendingIcon} 
@@ -1332,7 +1312,7 @@ const Properties = () => {
                   onClick={() => handleSort('addedDate')}
                 >
                   <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Added Date</div>
+                    <div>Added Date</div>
                     <div style={styles.sortIconsContainer}>
                       <img 
                         src={AscendingIcon} 
@@ -1357,7 +1337,7 @@ const Properties = () => {
                 {/* Actions Column */}
                 <th style={{ ...styles.tableHeaderCell, ...styles.actionsHeaderCell }}>
                   <div style={styles.headerCellContent}>
-                    <div style={styles.headerTextContainer}>Actions</div>
+                    <div>Actions</div>
                   </div>
                 </th>
               </tr>
@@ -1435,7 +1415,7 @@ const Properties = () => {
                           <img 
                             src={EditIcon} 
                             alt="Edit" 
-                            style={{ width: '18px', height: '18px' }}
+                            style={styles.responsiveIcon}
                             onError={(e) => {
                               e.target.style.display = 'none';
                               const span = document.createElement('span');
@@ -1454,7 +1434,7 @@ const Properties = () => {
                           <img 
                             src={DeleteActionIcon} 
                             alt="Delete" 
-                            style={{ width: '18px', height: '18px' }}
+                            style={styles.responsiveIcon}
                             onError={(e) => {
                               e.target.style.display = 'none';
                               const span = document.createElement('span');
@@ -1492,22 +1472,17 @@ const Properties = () => {
               onMouseLeave={(e) => {
                 if (currentPage !== 1) e.target.style.backgroundColor = 'white';
               }}
+              aria-label="Previous page"
             >
               <img 
                 src={PreviousIcon} 
                 alt="Previous" 
-                style={{ width: '16px', height: '16px' }}
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  const span = document.createElement('span');
-                  span.textContent = '←';
-                  e.target.parentNode.appendChild(span);
-                }}
+                style={styles.responsiveIcon}
               />
-              Previous
+              {windowWidth >= 640 && 'Previous'}
             </button>
 
-            {[1, 2, '...', 9, 10].map((page, index) => (
+            {getPageNumbers().map((page, index) => (
               page === '...' ? (
                 <span key={index} style={styles.ellipsis}>...</span>
               ) : (
@@ -1524,6 +1499,8 @@ const Properties = () => {
                   onMouseLeave={(e) => {
                     if (currentPage !== page) e.target.style.backgroundColor = 'white';
                   }}
+                  aria-label={`Page ${page}`}
+                  aria-current={currentPage === page ? 'page' : undefined}
                 >
                   {page}
                 </button>
@@ -1543,18 +1520,13 @@ const Properties = () => {
               onMouseLeave={(e) => {
                 if (currentPage !== totalPages) e.target.style.backgroundColor = 'white';
               }}
+              aria-label="Next page"
             >
-              Next
+              {windowWidth >= 640 && 'Next'}
               <img 
                 src={NextIcon} 
                 alt="Next" 
-                style={{ width: '16px', height: '16px' }}
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  const span = document.createElement('span');
-                  span.textContent = '→';
-                  e.target.parentNode.appendChild(span);
-                }}
+                style={styles.responsiveIcon}
               />
             </button>
           </div>
@@ -1578,14 +1550,7 @@ const Properties = () => {
                 <img 
                   src={CloseIcon} 
                   alt="Close" 
-                  style={{ width: '20px', height: '20px' }}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    const span = document.createElement('span');
-                    span.textContent = '×';
-                    span.style.fontSize = '24px';
-                    e.target.parentNode.appendChild(span);
-                  }}
+                  style={styles.responsiveIcon}
                 />
               </button>
             </div>
@@ -1695,7 +1660,6 @@ const Properties = () => {
                     onMouseEnter={(e) => e.currentTarget.style.borderColor = '#A237FF'}
                     onMouseLeave={(e) => e.currentTarget.style.borderColor = '#D1D5DB'}
                   >
-                    {/* Upload Icon SVG */}
                     <svg
                       style={styles.uploadIcon}
                       xmlns="http://www.w3.org/2000/svg"
@@ -1743,9 +1707,11 @@ const Properties = () => {
                               borderRadius: '6px',
                               fontSize: '12px',
                               fontFamily: 'Montserrat',
+                              maxWidth: '100%',
+                              overflow: 'hidden',
                             }}
                           >
-                            <span style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {file.name}
                             </span>
                             <button
@@ -1761,6 +1727,7 @@ const Properties = () => {
                                 color: '#EF4444',
                                 fontSize: '14px',
                                 padding: '0',
+                                flexShrink: 0,
                               }}
                             >
                               ×
