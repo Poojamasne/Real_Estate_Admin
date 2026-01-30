@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 // Icons
 import TotalPropertiesIcon from "../../assets/icons/Total Properties1.svg";
@@ -6,8 +6,8 @@ import TotalInquiriesIcon from "../../assets/icons/Total Inquiries1.svg";
 import AvailablePropertiesIcon from "../../assets/icons/Available Properties1.svg";
 import ActiveLeadsIcon from "../../assets/icons/Active Leads1.svg";
 
-const Dashboard = () => {
-  const stats = [
+// Sample data
+const SAMPLE_STATS = [
   {
     id: 1,
     title: "Total Properties",
@@ -42,18 +42,147 @@ const Dashboard = () => {
   },
 ];
 
+const SAMPLE_RECENT_INQUIRIES = [
+  { id: 1, name: "Rahul Jagtap", property: "Luxury Villa in Beverly Hills", status: "Contacted" },
+  { id: 2, name: "Ganesh Sharma", property: "Modern Downtown Apartment", status: "New" },
+  { id: 3, name: "Ajay Gupta", property: "Suburban Family Home", status: "Closed" },
+];
 
-  const recentInquiries = [
-    { id: 1, name: "Rahul Jagtap", property: "Luxury Villa in Beverly Hills", status: "Contacted" },
-    { id: 2, name: "Ganesh Sharma", property: "Modern Downtown Apartment", status: "New" },
-    { id: 3, name: "Ajay Gupta", property: "Suburban Family Home", status: "Closed" },
-  ];
+const SAMPLE_RECENT_PROPERTIES = [
+  { id: 1, name: "Luxury Villa in Beverly Hills", date: "Jan 15, 2026", price: "₹2 Crore", status: "Available" },
+  { id: 2, name: "Modern Downtown Apartment", date: "Jan 14, 2026", price: "₹85 Lakh", status: "Available" },
+  { id: 3, name: "Contemporary 3 BHK Apartment", date: "Jan 12, 2026", price: "₹18k", status: "Rented" },
+];
 
-  const recentProperties = [
-    { id: 1, name: "Luxury Villa in Beverly Hills", date: "Jan 15, 2026", price: "₹2 Crore", status: "Available" },
-    { id: 2, name: "Modern Downtown Apartment", date: "Jan 14, 2026", price: "₹85 Lakh", status: "Available" },
-    { id: 3, name: "Contemporary 3 BHK Apartment", date: "Jan 12, 2026", price: "₹18k", status: "Rented" },
-  ];
+const Dashboard = () => {
+  // Initialize state from localStorage or use defaults
+  const [stats, setStats] = useState(() => {
+    const savedStats = localStorage.getItem('dashboardStats');
+    return savedStats ? JSON.parse(savedStats) : SAMPLE_STATS;
+  });
+
+  const [recentInquiries, setRecentInquiries] = useState(() => {
+    const savedInquiries = localStorage.getItem('dashboardRecentInquiries');
+    return savedInquiries ? JSON.parse(savedInquiries) : SAMPLE_RECENT_INQUIRIES;
+  });
+
+  const [recentProperties, setRecentProperties] = useState(() => {
+    const savedProperties = localStorage.getItem('dashboardRecentProperties');
+    return savedProperties ? JSON.parse(savedProperties) : SAMPLE_RECENT_PROPERTIES;
+  });
+
+  // Calculate stats from actual data in localStorage
+  useEffect(() => {
+    const updateDashboardData = () => {
+      try {
+        // Get properties data from localStorage
+        const propertiesData = localStorage.getItem('properties');
+        const inquiriesData = localStorage.getItem('inquiries');
+        
+        let calculatedStats = [...stats];
+        let calculatedRecentInquiries = [...recentInquiries];
+        let calculatedRecentProperties = [...recentProperties];
+
+        // Update stats based on actual data
+        if (propertiesData) {
+          const properties = JSON.parse(propertiesData);
+          
+          // Total Properties
+          calculatedStats[0].value = properties.length;
+          calculatedStats[0].change = `+${properties.length - SAMPLE_STATS[0].value} from sample`;
+          
+          // Available Properties
+          const availableProperties = properties.filter(p => p.status === 'Available');
+          calculatedStats[2].value = availableProperties.length;
+          calculatedStats[2].change = `${availableProperties.length} properties`;
+          
+          // Update recent properties from actual data
+          const sortedProperties = [...properties]
+            .sort((a, b) => new Date(b.addedDate.split('-').reverse().join('-')) - new Date(a.addedDate.split('-').reverse().join('-')))
+            .slice(0, 3);
+          
+          calculatedRecentProperties = sortedProperties.map((prop, index) => ({
+            id: prop.id || index + 1,
+            name: prop.name,
+            date: prop.addedDate,
+            price: prop.price,
+            status: prop.status
+          }));
+          
+          setRecentProperties(calculatedRecentProperties);
+        }
+
+        if (inquiriesData) {
+          const inquiries = JSON.parse(inquiriesData);
+          
+          // Total Inquiries
+          calculatedStats[1].value = inquiries.length;
+          calculatedStats[1].change = `+${inquiries.length - SAMPLE_STATS[1].value} from sample`;
+          
+          // Active Leads (New + Contacted inquiries)
+          const activeLeads = inquiries.filter(i => i.status === 'New' || i.status === 'Contacted');
+          calculatedStats[3].value = activeLeads.length;
+          calculatedStats[3].change = `${activeLeads.length} leads`;
+          
+          // Update recent inquiries from actual data
+          const sortedInquiries = [...inquiries]
+            .sort((a, b) => new Date(b.inquiryDate.split('-').reverse().join('-')) - new Date(a.inquiryDate.split('-').reverse().join('-')))
+            .slice(0, 3);
+          
+          calculatedRecentInquiries = sortedInquiries.map((inq, index) => ({
+            id: inq.id || index + 1,
+            name: inq.name,
+            property: inq.propertyInterested,
+            status: inq.status
+          }));
+          
+          setRecentInquiries(calculatedRecentInquiries);
+        }
+
+        setStats(calculatedStats);
+        
+        // Save updated data to localStorage
+        localStorage.setItem('dashboardStats', JSON.stringify(calculatedStats));
+        localStorage.setItem('dashboardRecentInquiries', JSON.stringify(calculatedRecentInquiries));
+        localStorage.setItem('dashboardRecentProperties', JSON.stringify(calculatedRecentProperties));
+
+      } catch (error) {
+        console.error('Error updating dashboard data:', error);
+      }
+    };
+
+    updateDashboardData();
+    
+    // Listen for changes in properties and inquiries
+    const handleStorageChange = (e) => {
+      if (e.key === 'properties' || e.key === 'inquiries') {
+        updateDashboardData();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    
+    const intervalId = setInterval(updateDashboardData, 5000); // Update every 5 seconds
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem('dashboardStats', JSON.stringify(stats));
+  }, [stats]);
+
+  useEffect(() => {
+    localStorage.setItem('dashboardRecentInquiries', JSON.stringify(recentInquiries));
+  }, [recentInquiries]);
+
+  useEffect(() => {
+    localStorage.setItem('dashboardRecentProperties', JSON.stringify(recentProperties));
+  }, [recentProperties]);
 
   const styles = {
     container: { 
@@ -156,7 +285,6 @@ const Dashboard = () => {
     td: {
       padding: "clamp(12px, 3vw, 14px) clamp(15px, 3vw, 20px)",
       fontSize: "clamp(13px, 2.5vw, 14px)",
-      // background: "#FAFAFA",
       verticalAlign: "middle",
       wordBreak: "break-word"
     },
@@ -224,6 +352,35 @@ const Dashboard = () => {
       whiteSpace: "nowrap"
     }),
 
+    /* Reset button */
+    resetButton: {
+      backgroundColor: '#f0f0f0',
+      color: '#333',
+      border: '1px solid #ddd',
+      borderRadius: '5px',
+      padding: '8px 16px',
+      marginBottom: '20px',
+      cursor: 'pointer',
+      fontSize: '14px',
+      fontWeight: 500,
+      transition: 'all 0.3s ease',
+    },
+
+    /* Refresh button */
+    refreshButton: {
+      backgroundColor: '#4CAF50',
+      color: 'white',
+      border: 'none',
+      borderRadius: '5px',
+      padding: '8px 16px',
+      marginBottom: '20px',
+      marginLeft: '10px',
+      cursor: 'pointer',
+      fontSize: '14px',
+      fontWeight: 500,
+      transition: 'all 0.3s ease',
+    },
+
     /* Media query styles for mobile */
     mobileStyles: {
       "@media (max-width: 768px)": {
@@ -263,6 +420,9 @@ const Dashboard = () => {
     }
   };
 
+
+  
+
   return (
     <div style={styles.container}>
       {/* Welcome */}
@@ -281,12 +441,11 @@ const Dashboard = () => {
               <div style={styles.statChange}>{s.change}</div>
             </div>
             <div
-  style={{
-    ...styles.statIconBox,
-    background: s.bgColor,
-  }}
->
-
+              style={{
+                ...styles.statIconBox,
+                background: s.bgColor,
+              }}
+            >
               <img src={s.icon} alt="" width={24} height={24} />
             </div>
           </div>

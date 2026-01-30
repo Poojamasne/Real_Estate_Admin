@@ -16,77 +16,126 @@ import CallIcon from '../../assets/icons/call.svg';
 import EmailIcon from '../../assets/icons/email.svg';
 import StatusIcon from '../../assets/icons/ChevronRight.svg';
 
-const Inquiries = () => {
-  // Sample inquiry data
-  const [inquiries, setInquiries] = useState([
-    {
-      id: 1,
-      name: 'Riya Patil',
-      email: 'riya.p@sumago.com',
-      propertyInterested: 'Luxury Villa in Beverly Hills',
-      phone: '91777877889',
-      inquiryDate: '12-08-2026',
-      status: 'Contacted',
-      message: "I'm interested in Scheduling A Viewing For Property",
-      deleteDate: '11-02-2026'
-    },
-    {
-      id: 2,
-      name: 'Rajesh Patil',
-      email: 'shawtraders@yahoo.com',
-      propertyInterested: 'Modern Downtown Apartment',
-      phone: '91989898989',
-      inquiryDate: '11-02-2026',
-      status: 'New',
-      message: 'Please send me more details about the apartment.',
-      deleteDate: '11-02-2026'
-    },
-    {
-      id: 3,
-      name: 'Rakesh Shetty',
-      email: 'guptasup@gmail.com',
-      propertyInterested: 'Suburban Family Home',
-      phone: '91777777777',
-      inquiryDate: '10-02-2025',
-      status: 'Closed',
-      message: 'Can you provide floor plans?',
-      deleteDate: '11-02-2025'
-    },
-    {
-      id: 4,
-      name: 'Kiran More',
-      email: 'kmoretrans@gmail.com',
-      propertyInterested: 'Mountain View Estate',
-      phone: '91666666666',
-      inquiryDate: '09-02-2026',
-      status: 'New',
-      message: 'I would like to schedule a virtual tour.',
-      deleteDate: '11-02-2026'
-    },
-    {
-      id: 5,
-      name: 'Sunita Shah',
-      email: 'sharmasteel@gmail.com',
-      propertyInterested: 'Urban Loft',
-      phone: '91555555555',
-      inquiryDate: '08-02-2024',
-      status: 'Contacted',
-      message: 'Is there parking available?',
-      deleteDate: '11-02-2024'
-    },
-  ]);
+// Sample inquiry data
+const INITIAL_INQUIRIES = [
+  {
+    id: 1,
+    name: 'Riya Patil',
+    email: 'riya.p@sumago.com',
+    propertyInterested: 'Luxury Villa in Beverly Hills',
+    phone: '91777877889',
+    inquiryDate: '12-08-2026',
+    status: 'Contacted',
+    message: "I'm interested in Scheduling A Viewing For Property",
+    deleteDate: '11-02-2026'
+  },
+  {
+    id: 2,
+    name: 'Rajesh Patil',
+    email: 'shawtraders@yahoo.com',
+    propertyInterested: 'Modern Downtown Apartment',
+    phone: '91989898989',
+    inquiryDate: '11-02-2026',
+    status: 'New',
+    message: 'Please send me more details about the apartment.',
+    deleteDate: '11-02-2026'
+  },
+  {
+    id: 3,
+    name: 'Rakesh Shetty',
+    email: 'guptasup@gmail.com',
+    propertyInterested: 'Suburban Family Home',
+    phone: '91777777777',
+    inquiryDate: '10-02-2025',
+    status: 'Closed',
+    message: 'Can you provide floor plans?',
+    deleteDate: '11-02-2025'
+  },
+  {
+    id: 4,
+    name: 'Kiran More',
+    email: 'kmoretrans@gmail.com',
+    propertyInterested: 'Mountain View Estate',
+    phone: '91666666666',
+    inquiryDate: '09-02-2026',
+    status: 'New',
+    message: 'I would like to schedule a virtual tour.',
+    deleteDate: '11-02-2026'
+  },
+  {
+    id: 5,
+    name: 'Sunita Shah',
+    email: 'sharmasteel@gmail.com',
+    propertyInterested: 'Urban Loft',
+    phone: '91555555555',
+    inquiryDate: '08-02-2024',
+    status: 'Contacted',
+    message: 'Is there parking available?',
+    deleteDate: '11-02-2024'
+  },
+];
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedInquiries, setSelectedInquiries] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+const Inquiries = () => {
+  // Initialize state from localStorage or use defaults
+  const [inquiries, setInquiries] = useState(() => {
+    const savedInquiries = localStorage.getItem('inquiries');
+    return savedInquiries ? JSON.parse(savedInquiries) : INITIAL_INQUIRIES;
+  });
+
+  const [searchTerm, setSearchTerm] = useState(() => {
+    const savedSearchTerm = localStorage.getItem('inquiriesSearchTerm');
+    return savedSearchTerm || '';
+  });
+
+  const [selectedInquiries, setSelectedInquiries] = useState(() => {
+    const savedSelected = localStorage.getItem('selectedInquiries');
+    return savedSelected ? JSON.parse(savedSelected) : [];
+  });
+
+  const [currentPage, setCurrentPage] = useState(() => {
+    const savedPage = localStorage.getItem('inquiriesCurrentPage');
+    return savedPage ? parseInt(savedPage) : 1;
+  });
+
+  const [sortConfig, setSortConfig] = useState(() => {
+    const savedSort = localStorage.getItem('inquiriesSortConfig');
+    return savedSort ? JSON.parse(savedSort) : { key: null, direction: 'asc' };
+  });
+
   const [showModal, setShowModal] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [showFilter, setShowFilter] = useState(false);
- const [selectedStatus, setSelectedStatus] = useState('New');
+  const [selectedStatus, setSelectedStatus] = useState(() => {
+    const savedStatus = localStorage.getItem('selectedStatus');
+    return savedStatus || 'New';
+  });
 
-  
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem('inquiries', JSON.stringify(inquiries));
+  }, [inquiries]);
+
+  useEffect(() => {
+    localStorage.setItem('selectedInquiries', JSON.stringify(selectedInquiries));
+  }, [selectedInquiries]);
+
+  useEffect(() => {
+    localStorage.setItem('inquiriesCurrentPage', currentPage.toString());
+  }, [currentPage]);
+
+  useEffect(() => {
+    localStorage.setItem('inquiriesSortConfig', JSON.stringify(sortConfig));
+  }, [sortConfig]);
+
+  useEffect(() => {
+    localStorage.setItem('inquiriesSearchTerm', searchTerm);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    localStorage.setItem('selectedStatus', selectedStatus);
+  }, [selectedStatus]);
+
   // Responsive items per page
   const getItemsPerPage = () => {
     if (windowWidth < 640) return 5;
@@ -125,7 +174,7 @@ const Inquiries = () => {
                          inquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          inquiry.propertyInterested.toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesSearch ;
+    return matchesSearch;
   });
 
   // Pagination logic
@@ -202,6 +251,21 @@ const Inquiries = () => {
     setSelectedInquiry(null);
   };
 
+  // Handle status change in modal
+  const handleStatusChange = (inquiryId, newStatus) => {
+    const updatedInquiries = inquiries.map(inquiry => 
+      inquiry.id === inquiryId 
+        ? { ...inquiry, status: newStatus }
+        : inquiry
+    );
+    setInquiries(updatedInquiries);
+    
+    // Update selected inquiry if it's the same one
+    if (selectedInquiry && selectedInquiry.id === inquiryId) {
+      setSelectedInquiry({...selectedInquiry, status: newStatus});
+    }
+  };
+
   // Get status button styles based on status
   const getStatusButtonStyle = (status) => {
     switch(status) {
@@ -235,12 +299,11 @@ const Inquiries = () => {
 
   // Status options
   const statusOptions = [
-  'New',
-  'Contacted',
-  'Closed',
-  'Converted'
-];
-
+    'New',
+    'Contacted',
+    'Closed',
+    'Converted'
+  ];
 
   // Format date
   const formatDate = (dateString) => {
@@ -923,6 +986,33 @@ const Inquiries = () => {
 
           <div style={styles.controlsGroup}>
             <div style={styles.filterContainer}>
+              <button 
+                style={styles.allFilterButton}
+                onClick={() => setShowFilter(!showFilter)}
+                onMouseEnter={(e) => e.target.style.borderColor = '#A237FF'}
+                onMouseLeave={(e) => e.target.style.borderColor = '#E2E8F0'}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <img 
+                    src={FilterIcon} 
+                    alt="Filter" 
+                    style={styles.responsiveIcon}
+                    onError={(e) => e.target.style.display = 'none'}
+                  /> 
+                  <span>Filter by Status</span>
+                </div>
+                <img 
+                  src={DescendingIcon} 
+                  alt="Dropdown" 
+                  style={{ 
+                    width: '16px', 
+                    height: '16px',
+                    transform: showFilter ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s ease'
+                  }}
+                  onError={(e) => e.target.style.display = 'none'}
+                />
+              </button>
               
               {showFilter && (
                 <div style={styles.filterDropdown}>
@@ -976,12 +1066,27 @@ const Inquiries = () => {
           </div>
         </div>
 
+        {/* Close dropdown when clicking outside */}
+        {showFilter && (
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 99,
+            }}
+            onClick={() => setShowFilter(false)}
+          />
+        )}
+
         {/* Table Container with Scroll and Grid Lines */}
         <div style={styles.tableContainer}>
           <table style={styles.table}>
             <thead style={styles.tableHeaderRow}>
               <tr>
-                {/* Checkbox Column */}
+              
                 <th style={{ ...styles.tableHeaderCell, ...styles.checkboxHeaderCell }}>
                   <input
                     type="checkbox"
@@ -1283,14 +1388,7 @@ const Inquiries = () => {
                       const statuses = ['New', 'Contacted', 'Closed', 'Converted'];
                       const currentIndex = statuses.indexOf(selectedInquiry.status);
                       const newStatus = statuses[(currentIndex + 1) % statuses.length];
-
-                      const updatedInquiries = inquiries.map(inquiry => 
-                        inquiry.id === selectedInquiry.id 
-                          ? { ...inquiry, status: newStatus }
-                          : inquiry
-                      );
-                      setInquiries(updatedInquiries);
-                      setSelectedInquiry({...selectedInquiry, status: newStatus});
+                      handleStatusChange(selectedInquiry.id, newStatus);
                     }}
                     aria-label={`Change status from ${selectedInquiry.status}`}
                   >

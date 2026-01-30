@@ -6,6 +6,7 @@ import SearchIcon from '../../assets/icons/Search-property.svg';
 import FilterIcon from '../../assets/icons/Filter.svg';
 import DeleteIcon from '../../assets/icons/delete.svg';
 import EditIcon from '../../assets/icons/edit.svg';
+import ViewIcon from '../../assets/icons/eye-close.svg'; 
 import PreviousIcon from '../../assets/icons/PreviousIcon.svg';
 import NextIcon from '../../assets/icons/NextIcon.svg';
 import AscendingIcon from '../../assets/icons/ChevronLeft.svg';
@@ -13,61 +14,87 @@ import DescendingIcon from '../../assets/icons/ChevronRight.svg';
 import DeleteActionIcon from '../../assets/icons/Button (1).svg';
 import CloseIcon from '../../assets/icons/close.svg'; 
 
-const Properties = () => {
-  // Sample property data with all required fields
-  const [properties, setProperties] = useState([
-    {
-      id: 1,
-      name: 'Luxury Villa in Beverly Hills',
-      location: 'Baner, Pune',
-      price: '₹ 70 Lakh',
-      details: '3,000 sq ft 3 BHK Villa',
-      status: 'Available',
-      addedDate: '11-02-2026'
-    },
-    {
-      id: 2,
-      name: 'Modern Downtown Apartment',
-      location: 'Shingada Road, Suncity',
-      price: '₹ 85 Lakh',
-      details: '1,300 sq ft Apartment',
-      status: 'Rented',
-      addedDate: '11-02-2026'
-    },
-    {
-      id: 3,
-      name: 'Suburban Family Home',
-      location: 'Thane Maharashtra',
-      price: '₹ 70 Lakh',
-      details: '3,000 sq ft 3 BHK Villa',
-      status: 'Sold',
-      addedDate: '11-02-2026'
-    },
-    {
-      id: 4,
-      name: 'Mountain View Estate',
-      location: 'Wakad, Pune',
-      price: '₹ 2 Crore',
-      details: '1,300 sq ft Apartment',
-      status: 'Available',
-      addedDate: '11-02-2026'
-    },
-    {
-      id: 5,
-      name: 'Urban Loft',
-      location: 'Hinjewadi, Pune',
-      price: '₹ 70 Lakh',
-      details: '2,500 sq ft Commercial',
-      status: 'Rented',
-      addedDate: '11-02-2026'
-    },
-  ]);
+// Sample property data with all required fields
+const INITIAL_PROPERTIES = [
+  {
+    id: 1,
+    name: 'Luxury Villa in Beverly Hills',
+    location: 'Baner, Pune',
+    price: '₹ 70 Lakh',
+    details: '3,000 sq ft 3 BHK Villa',
+    status: 'Available',
+    addedDate: '11-02-2026'
+  },
+  {
+    id: 2,
+    name: 'Modern Downtown Apartment',
+    location: 'Shingada Road, Suncity',
+    price: '₹ 85 Lakh',
+    details: '1,300 sq ft Apartment',
+    status: 'Rented',
+    addedDate: '11-02-2026'
+  },
+  {
+    id: 3,
+    name: 'Suburban Family Home',
+    location: 'Thane Maharashtra',
+    price: '₹ 70 Lakh',
+    details: '3,000 sq ft 3 BHK Villa',
+    status: 'Sold',
+    addedDate: '11-02-2026'
+  },
+  {
+    id: 4,
+    name: 'Mountain View Estate',
+    location: 'Wakad, Pune',
+    price: '₹ 2 Crore',
+    details: '1,300 sq ft Apartment',
+    status: 'Available',
+    addedDate: '11-02-2026'
+  },
+  {
+    id: 5,
+    name: 'Urban Loft',
+    location: 'Hinjewadi, Pune',
+    price: '₹ 70 Lakh',
+    details: '2,500 sq ft Commercial',
+    status: 'Rented',
+    addedDate: '11-02-2026'
+  },
+];
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProperties, setSelectedProperties] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('All Status');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+const Properties = () => {
+  
+  const [properties, setProperties] = useState(() => {
+    const savedProperties = localStorage.getItem('properties');
+    return savedProperties ? JSON.parse(savedProperties) : INITIAL_PROPERTIES;
+  });
+
+  const [searchTerm, setSearchTerm] = useState(() => {
+    const savedSearchTerm = localStorage.getItem('searchTerm');
+    return savedSearchTerm || '';
+  });
+
+  const [selectedProperties, setSelectedProperties] = useState(() => {
+    const savedSelected = localStorage.getItem('selectedProperties');
+    return savedSelected ? JSON.parse(savedSelected) : [];
+  });
+
+  const [statusFilter, setStatusFilter] = useState(() => {
+    const savedFilter = localStorage.getItem('statusFilter');
+    return savedFilter || 'All Status';
+  });
+
+  const [currentPage, setCurrentPage] = useState(() => {
+    const savedPage = localStorage.getItem('currentPage');
+    return savedPage ? parseInt(savedPage) : 1;
+  });
+
+  const [sortConfig, setSortConfig] = useState(() => {
+    const savedSort = localStorage.getItem('sortConfig');
+    return savedSort ? JSON.parse(savedSort) : { key: null, direction: 'asc' };
+  });
+
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('add');
   const [editingProperty, setEditingProperty] = useState(null);
@@ -84,6 +111,31 @@ const Properties = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem('properties', JSON.stringify(properties));
+  }, [properties]);
+
+  useEffect(() => {
+    localStorage.setItem('selectedProperties', JSON.stringify(selectedProperties));
+  }, [selectedProperties]);
+
+  useEffect(() => {
+    localStorage.setItem('statusFilter', statusFilter);
+  }, [statusFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('currentPage', currentPage.toString());
+  }, [currentPage]);
+
+  useEffect(() => {
+    localStorage.setItem('sortConfig', JSON.stringify(sortConfig));
+  }, [sortConfig]);
+
+  useEffect(() => {
+    localStorage.setItem('searchTerm', searchTerm);
+  }, [searchTerm]);
 
   // Handle window resize
   useEffect(() => {
