@@ -84,7 +84,7 @@ const AdminNavbar = ({ onToggleSidebar, isSidebarOpen }) => {
       pointerEvents: "none",
     },
     searchInput: {
-      width: "100%",
+      width: "95%",
       height: isMobile ? "34px" : "38px",
       borderRadius: "8px",
       border: `1px solid ${isSearchFocused ? "#CDA1F8" : "#D9D9D9"}`,

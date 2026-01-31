@@ -491,8 +491,8 @@ const Properties = () => {
       height: '16px',
     },
     searchInput: {
-      width: '100%',
-      maxWidth: windowWidth < 768 ? '100%' : '324px',
+      width: '145%',
+      Width: windowWidth < 768 ? '100%' : '324px',
       height: '38px',
       border: '1px solid #E2E8F0',
       borderRadius: '6px',
@@ -1078,8 +1078,8 @@ const Properties = () => {
     },
     // Responsive icons
     responsiveIcon: {
-      width: windowWidth < 640 ? '14px' : '16px',
-      height: windowWidth < 640 ? '14px' : '16px',
+      width: windowWidth < 640 ? '14px' : '26px',
+      height: windowWidth < 640 ? '14px' : '26px',
     },
   };
 

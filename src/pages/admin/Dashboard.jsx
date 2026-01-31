@@ -4,43 +4,37 @@ import React, { useState, useEffect } from "react";
 import TotalPropertiesIcon from "../../assets/icons/Total Properties1.svg";
 import TotalInquiriesIcon from "../../assets/icons/Total Inquiries1.svg";
 import AvailablePropertiesIcon from "../../assets/icons/Available Properties1.svg";
-import ActiveLeadsIcon from "../../assets/icons/Active Leads1.svg";
+import ActiveLeadsIcon from "../../assets/icons/Vector.svg";
+import RupeesIcon from "../../assets/icons/Rupees.svg";
 
-// Sample data
-const SAMPLE_STATS = [
+
+const BASE_STATS = [
   {
     id: 1,
     title: "Total Properties",
-    value: 21,
-    change: "+12% from last month",
     icon: TotalPropertiesIcon,
     bgColor: "#B4F8FF",
   },
   {
     id: 2,
     title: "Total Inquiries",
-    value: 12,
-    change: "+8% from last month",
     icon: TotalInquiriesIcon,
     bgColor: "#B4FFD9",
   },
   {
     id: 3,
     title: "Available Properties",
-    value: 15,
-    change: "6 properties",
     icon: AvailablePropertiesIcon,
     bgColor: "#FFE8B4",
   },
   {
     id: 4,
     title: "Active Leads",
-    value: 10,
-    change: "Pending follow-up",
     icon: ActiveLeadsIcon,
-    bgColor: "#B4FFD9",
+    bgColor: "#F7B4FF", // ✅ purple stays forever
   },
 ];
+
 
 const SAMPLE_RECENT_INQUIRIES = [
   { id: 1, name: "Rahul Jagtap", property: "Luxury Villa in Beverly Hills", status: "Contacted" },
@@ -49,16 +43,16 @@ const SAMPLE_RECENT_INQUIRIES = [
 ];
 
 const SAMPLE_RECENT_PROPERTIES = [
-  { id: 1, name: "Luxury Villa in Beverly Hills", date: "Jan 15, 2026", price: "₹2 Crore", status: "Available" },
-  { id: 2, name: "Modern Downtown Apartment", date: "Jan 14, 2026", price: "₹85 Lakh", status: "Available" },
-  { id: 3, name: "Contemporary 3 BHK Apartment", date: "Jan 12, 2026", price: "₹18k", status: "Rented" },
+  { id: 1, name: "Luxury Villa in Beverly Hills", date: "Jan 15, 2026", price: "₹ 2 Crore", status: "Available" },
+  { id: 2, name: "Modern Downtown Apartment", date: "Jan 14, 2026", price: "₹ 85 Lakh", status: "Available" },
+  { id: 3, name: "Contemporary 3 BHK Apartment", date: "Jan 12, 2026", price: "₹ 18k", status: "Rented" },
 ];
 
 const Dashboard = () => {
   // Initialize state from localStorage or use defaults
   const [stats, setStats] = useState(() => {
     const savedStats = localStorage.getItem('dashboardStats');
-    return savedStats ? JSON.parse(savedStats) : SAMPLE_STATS;
+    return savedStats ? JSON.parse(savedStats) : BASE_STATS;
   });
 
   const [recentInquiries, setRecentInquiries] = useState(() => {
@@ -79,7 +73,12 @@ const Dashboard = () => {
         const propertiesData = localStorage.getItem('properties');
         const inquiriesData = localStorage.getItem('inquiries');
         
-        let calculatedStats = [...stats];
+        let calculatedStats = BASE_STATS.map((base, index) => ({
+  ...base,
+  value: stats[index]?.value || 0,
+  change: stats[index]?.change || "",
+}));
+
         let calculatedRecentInquiries = [...recentInquiries];
         let calculatedRecentProperties = [...recentProperties];
 
@@ -89,7 +88,7 @@ const Dashboard = () => {
           
           // Total Properties
           calculatedStats[0].value = properties.length;
-          calculatedStats[0].change = `+${properties.length - SAMPLE_STATS[0].value} from sample`;
+          calculatedStats[0].change = `+${properties.length , BASE_STATS[0].value} from sample`;
           
           // Available Properties
           const availableProperties = properties.filter(p => p.status === 'Available');
@@ -117,7 +116,7 @@ const Dashboard = () => {
           
           // Total Inquiries
           calculatedStats[1].value = inquiries.length;
-          calculatedStats[1].change = `+${inquiries.length - SAMPLE_STATS[1].value} from sample`;
+          calculatedStats[1].change = `+${inquiries.length , BASE_STATS[1].value} from sample`;
           
           // Active Leads (New + Contacted inquiries)
           const activeLeads = inquiries.filter(i => i.status === 'New' || i.status === 'Contacted');
@@ -212,20 +211,21 @@ const Dashboard = () => {
       marginBottom: "30px",
     },
     statCard: {
-      background: "#fff",
-      borderRadius: "15px",
-      padding: "20px",
-      display: "flex",
-      justifyContent: "space-between",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-      minHeight: "120px",
-      boxSizing: "border-box"
-    },
+  background: "#fff",
+  borderRadius: "15px",
+  padding: "20px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+  minHeight: "120px",
+  boxSizing: "border-box",
+  border: "1px solid #CCCCCC",
+},
     statIconBox: {
       width: "48px",
       height: "48px",
       borderRadius: "12px",
-      background: "#F4F6FA",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -274,14 +274,22 @@ const Dashboard = () => {
       minWidth: "600px",
     },
     th: {
-      padding: "clamp(12px, 3vw, 14px) clamp(15px, 3vw, 20px)",
-      fontSize: "clamp(11px, 2.5vw, 12px)",
-      fontWeight: 600,
-      background: "#EBF2FF",
-      color: "#666",
-      textAlign: "left",
-      whiteSpace: "nowrap"
-    },
+  padding: "clamp(12px, 3vw, 14px) clamp(15px, 3vw, 20px)",
+
+  // 👇 Responsive font size
+  fontSize: "clamp(14px, 1.5vw, 18px)",
+
+  // Design spec
+  fontFamily: "Montserrat, sans-serif",
+  fontWeight: 500,          // Medium
+  lineHeight: "145%",
+  letterSpacing: "0px",
+
+  background: "#EBF2FF",
+  color: "#666",
+  textAlign: "left",
+  whiteSpace: "nowrap"
+},
     td: {
       padding: "clamp(12px, 3vw, 14px) clamp(15px, 3vw, 20px)",
       fontSize: "clamp(13px, 2.5vw, 14px)",
@@ -306,7 +314,7 @@ const Dashboard = () => {
       minWidth: "250px"
     },
     propertyName: { 
-      fontWeight: 600, 
+      fontWeight: 500, 
       fontSize: "clamp(14px, 3vw, 16px)",
       marginBottom: "4px"
     },
@@ -325,19 +333,27 @@ const Dashboard = () => {
       fontSize: "clamp(14px, 3vw, 16px)",
       whiteSpace: "nowrap"
     },
+
     statusButton: (status) => ({
-      display: "inline-flex",
-      alignItems: "center",
-      justifyContent: "center",
-      minWidth: "clamp(90px, 15vw, 110px)",
-      height: "clamp(35px, 8vw, 40px)",
-      borderRadius: "8px",
-      padding: "0 clamp(15px, 3vw, 20px)",
-      background: status === "Available" ? "#C5FAC9" : "#C5D6FA",
-      fontWeight: 500,
-      fontSize: "clamp(13px, 2.5vw, 14px)",
-      whiteSpace: "nowrap"
-    }),
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minWidth: "clamp(90px, 15vw, 110px)",
+  height: "clamp(35px, 8vw, 40px)",
+  borderRadius: "8px",
+  padding: "0 clamp(15px, 3vw, 20px)",
+  background:
+    status === "Available"
+      ? "#C5FAC9"
+      : status === "Sold"
+      ? "#FFBBBB"
+      : "#C5D6FA",
+  color: status === "Sold" ? "#DF0C3D" : "#000",
+  fontWeight: 500,
+  fontSize: "clamp(13px, 2.5vw, 14px)",
+  whiteSpace: "nowrap",
+}),
+
     inquiryStatusButton: (status) => ({
       display: "inline-flex",
       alignItems: "center",
@@ -419,8 +435,6 @@ const Dashboard = () => {
       }
     }
   };
-
-
   
 
   return (
@@ -464,30 +478,36 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {recentInquiries.map((row, index) => (
-              <tr key={row.id}>
-                <td style={{ 
-                  ...styles.td, 
-                  borderTopLeftRadius: index === 0 ? "10px" : "0",
-                  borderBottomLeftRadius: index === recentInquiries.length - 1 ? "10px" : "0"
-                }}>
-                  {row.name}
-                </td>
-                <td style={styles.td}>
-                  {row.property}
-                </td>
-                <td style={{ 
-                  ...styles.td, 
-                  borderTopRightRadius: index === 0 ? "10px" : "0",
-                  borderBottomRightRadius: index === recentInquiries.length - 1 ? "10px" : "0"
-                }}>
-                  <span style={styles.inquiryStatusButton(row.status)}>
-                    {row.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {recentInquiries.map((row, index) => (
+    <tr key={row.id}>
+      <td style={{ 
+        ...styles.td, 
+        borderTopLeftRadius: index === 0 ? "10px" : "0",
+        borderBottomLeftRadius: index === recentInquiries.length - 1 ? "10px" : "0",
+        borderBottom: index !== recentInquiries.length - 1 ? "1px solid #E0E0E0" : "none" // <-- Add this
+      }}>
+        {row.name}
+      </td>
+      <td style={{ 
+        ...styles.td,
+        borderBottom: index !== recentInquiries.length - 1 ? "1px solid #E0E0E0" : "none" // <-- Add this
+      }}>
+        {row.property}
+      </td>
+      <td style={{ 
+        ...styles.td, 
+        borderTopRightRadius: index === 0 ? "10px" : "0",
+        borderBottomRightRadius: index === recentInquiries.length - 1 ? "10px" : "0",
+        borderBottom: index !== recentInquiries.length - 1 ? "1px solid #E0E0E0" : "none" // <-- Add this
+      }}>
+        <span style={styles.inquiryStatusButton(row.status)}>
+          {row.status}
+        </span>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
         </table>
       </div>
 
@@ -502,9 +522,11 @@ const Dashboard = () => {
                 <div style={styles.propertyDate}>{row.date}</div>
               </div>
               <div style={styles.propertyPriceStatus}>
-                <div style={styles.propertyPrice}>
-                  {row.price}
-                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', ...styles.propertyPrice }}>
+  <img src={RupeesIcon} alt="₹" style={{ width: '18px', height: '18px' }} />
+  <span>{row.price.replace(/^₹\s?/, '')}</span>
+</div>
+
                 <span style={styles.statusButton(row.status)}>
                   {row.status}
                 </span>

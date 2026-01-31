@@ -8,37 +8,20 @@ import InquiryIcon from "../../assets/icons/Inquiry.svg";
 import LogoutIcon from "../../assets/icons/Logout.svg";
 
 const AdminSidebar = ({ isOpen, onClose }) => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isTablet, setIsTablet] = useState(
+    window.innerWidth > 768 && window.innerWidth <= 1024
+  );
   const sidebarRef = useRef(null);
 
   // Device breakpoints
   const checkDeviceType = () => {
     const width = window.innerWidth;
-    
-    // Mobile: <= 768px (iPhone, small Android)
-    // Tablet: 769px - 1024px (iPad, Surface Pro 7)
-    // Desktop: > 1024px
     const mobile = width <= 768;
     const tablet = width > 768 && width <= 1024;
     
     setIsMobile(mobile);
     setIsTablet(tablet);
-    
-    // Auto-manage sidebar state based on device
-    if (mobile) {
-      // Mobile: close sidebar by default
-      onClose(false);
-    } else if (tablet) {
-      // Tablet: can be open or closed based on previous state
-      // But start closed on medium tablets
-      if (width <= 834) { // iPad Air width
-        onClose(false);
-      }
-    } else {
-      // Desktop: always open
-      onClose(true);
-    }
   };
 
   // Close sidebar if clicked outside on mobile/tablet
@@ -54,7 +37,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
   };
 
   useEffect(() => {
-    
+  
     
     // Add event listeners
     window.addEventListener("resize", checkDeviceType);
@@ -69,6 +52,23 @@ const AdminSidebar = ({ isOpen, onClose }) => {
     };
   }, [isMobile, isTablet, isOpen]);
 
+  // Handle escape key press to close sidebar
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape' && isOpen) {
+        onClose(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isOpen, onClose]);
+
   const menuItems = [
     { id: 1, name: "Dashboard", path: "/admin/dashboard", icon: DashboardIcon },
     { id: 2, name: "Property", path: "/admin/properties", icon: PropertyIcon },
@@ -80,13 +80,12 @@ const AdminSidebar = ({ isOpen, onClose }) => {
   const getSidebarWidth = () => {
     if (isMobile) return "280px";
     if (isTablet) {
-      // Different widths for different tablet sizes
       const width = window.innerWidth;
-      if (width <= 834) return "280px"; // iPad Air (834px width)
-      if (width <= 1024) return "300px"; // iPad Pro 11" (1024px width)
+      if (width <= 834) return "280px";
+      if (width <= 1024) return "300px";
       return "300px";
     }
-    return "265px"; // Desktop
+    return "265px";
   };
 
   const styles = {
@@ -99,7 +98,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       height: "100vh",
       backgroundColor: "rgba(0,0,0,0.3)",
       zIndex: 999,
-      backdropFilter: "blur(2px)", // Adds subtle blur effect
+      backdropFilter: "blur(2px)",
     },
     sidebar: {
       width: getSidebarWidth(),
@@ -112,7 +111,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       position: isMobile || isTablet ? "fixed" : "relative",
       top: 0,
       left: isMobile || isTablet ? (isOpen ? 0 : `-${getSidebarWidth()}`) : 0,
-      transition: isMobile || isTablet ? "left 0.3s ease" : "none",
+      transition: "left 0.3s ease",
       zIndex: 1000,
       boxShadow: (isMobile || isTablet) && isOpen ? "2px 0 15px rgba(0,0,0,0.1)" : "none",
     },
@@ -126,7 +125,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       padding: isMobile ? "0 20px" : "0",
     },
     logo: {
-      height: isMobile ? "36px" : "42px",
+      height: isMobile ? "36px" : "60px",
       objectFit: "contain",
       maxWidth: "100%",
     },
@@ -206,6 +205,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                     ...(isActive ? styles.activeMenuLink : {}),
                   })}
                   onClick={() => {
+                    // Close sidebar on mobile/tablet when clicking a menu item
                     if (isMobile || isTablet) {
                       onClose(false);
                     }

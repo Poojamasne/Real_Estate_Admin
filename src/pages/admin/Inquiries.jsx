@@ -362,13 +362,13 @@ const Inquiries = () => {
       margin: '0 auto',
     },
     searchRow: {
-      display: 'flex',
-      flexDirection: windowWidth < 640 ? 'column' : 'row',
-      alignItems: windowWidth < 640 ? 'stretch' : 'center',
-      justifyContent: 'space-between',
-      marginBottom: '24px',
-      gap: '16px',
-    },
+  display: 'flex',
+  flexDirection: windowWidth < 768 ? 'column' : 'row', // Changed from 640 to 768
+  alignItems: windowWidth < 768 ? 'stretch' : 'center', // Changed from 640 to 768
+  justifyContent: 'space-between',
+  marginBottom: '24px',
+  gap: '16px',
+},
     searchContainer: {
       position: 'relative',
       flex: windowWidth < 640 ? '0 0 auto' : 1,
@@ -382,42 +382,54 @@ const Inquiries = () => {
       height: '16px',
     },
     searchInput: {
-      width: windowWidth < 640 ? '100%' : '324px',
-      height: '38px',
-      border: '1px solid #E2E8F0',
-      borderRadius: '6px',
-      padding: '10px 12px 10px 40px',
-      fontSize: '14px',
-      color: '#1E293B',
-      outline: 'none',
-      backgroundColor: 'white',
-      fontFamily: 'Montserrat',
-    },
-    controlsGroup: {
-      display: 'flex',
-      flexDirection: windowWidth < 640 ? 'column' : 'row',
-      gap: '16px',
-      alignItems: windowWidth < 640 ? 'stretch' : 'center',
-    },
+  width:
+    windowWidth >= 768 && windowWidth <= 1024
+      ? '200px'              // ✅ iPad Mini
+      : windowWidth < 640
+      ? '100%'               // mobile
+      : '324px',             // desktop
+  height: '38px',
+  border: '1px solid #E2E8F0',
+  borderRadius: '6px',
+  padding: '10px 12px 10px 40px',
+  fontSize: '14px',
+  color: '#1E293B',
+  outline: 'none',
+  backgroundColor: 'white',
+  fontFamily: 'Montserrat',
+},
+
+     controlsGroup: {
+    display: 'flex',
+    flexDirection: windowWidth < 768 ? 'column' : 'row', // Changed from 640 to 768
+    gap: '16px',
+    alignItems: windowWidth < 768 ? 'stretch' : 'center', // Changed from 640 to 768
+    width: windowWidth >= 768 && windowWidth <= 1024 ? '100%' : 'auto', // Added this line for tablet
+    minWidth: windowWidth >= 768 && windowWidth <= 1024 ? '300px' : 'auto', // Added this line for tablet
+  },
+
     filterContainer: {
-      position: 'relative',
-    },
-    allFilterButton: {
-      width: windowWidth < 640 ? '100%' : '208px',
-      height: '39px',
-      backgroundColor: 'white',
-      border: '1px solid #E2E8F0',
-      borderRadius: '5px',
-      fontSize: '14px',
-      color: '#475569',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 16px',
-      transition: 'border-color 0.3s ease',
-      fontFamily: 'Montserrat',
-    },
+    position: 'relative',
+    flex: windowWidth >= 768 && windowWidth <= 1024 ? 1 : 'auto', // Added this line for tablet
+  },
+
+     allFilterButton: {
+    width: windowWidth < 768 ? '100%' : '208px', // Changed from 640 to 768
+    height: '39px',
+    backgroundColor: 'white',
+    border: '1px solid #E2E8F0',
+    borderRadius: '5px',
+    fontSize: '14px',
+    color: '#475569',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 16px',
+    transition: 'border-color 0.3s ease',
+    fontFamily: 'Montserrat',
+  },
+
     filterDropdown: {
       position: 'absolute',
       top: '45px',
@@ -439,23 +451,26 @@ const Inquiries = () => {
       transition: 'background-color 0.3s ease',
     },
     deleteButton: {
-      width: windowWidth < 640 ? '100%' : '163px',
-      height: '40px',
-      backgroundColor: '#FF3C3C',
-      color: 'white',
-      border: 'none',
-      borderRadius: '5px',
-      fontSize: '14px',
-      fontWeight: 500,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px',
-      padding: '10px',
-      transition: 'background-color 0.3s ease',
-      fontFamily: 'Montserrat',
-    },
+    width: windowWidth < 768 ? '100%' : '163px', // Changed from 640 to 768
+    height: '40px',
+    backgroundColor: '#FF3C3C',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    fontSize: '14px',
+    fontWeight: 500,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    padding: '10px',
+    transition: 'background-color 0.3s ease',
+    fontFamily: 'Montserrat',
+    flexShrink: 0, // Added this line to prevent button from shrinking
+  },
+  
+
     disabledDeleteButton: {
       backgroundColor: '#F3F4F6',
       color: '#9CA3AF',
@@ -919,8 +934,8 @@ const Inquiries = () => {
     },
     // Responsive icons
     responsiveIcon: {
-      width: windowWidth < 640 ? '14px' : '16px',
-      height: windowWidth < 640 ? '14px' : '16px',
+      width: windowWidth < 640 ? '14px' : '26px',
+      height: windowWidth < 640 ? '14px' : '26px',
     },
   };
 

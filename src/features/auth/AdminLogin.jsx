@@ -77,9 +77,9 @@ const AdminLogin = () => {
              '1248px',
       height: isMobile ? 'auto' : 
               isTablet ? (isLandscape ? '500px' : 'auto') : 
-              isLargeTablet ? (isLandscape ? '550px' : 'auto') : 
-              '622px',
-      minHeight: isTablet ? '550px' : isLargeTablet ? '600px' : 'auto',
+              isLargeTablet ? (isLandscape ? '500px' : 'auto') : 
+              '500px',
+      minHeight: isTablet ? '500px' : isLargeTablet ? '500px' : 'auto',
       background: 'white',
       borderRadius: isSmallMobile ? '10px' : 
                     isMobile ? '15px' : 
@@ -111,10 +111,10 @@ const AdminLogin = () => {
       display: isMobile ? 'none' : 'flex',
       width: isTablet ? (isLandscape ? '45%' : '40%') : 
              isLargeTablet ? (isLandscape ? '50%' : '45%') : 
-             '591px',
+             '500px',
       height: isTablet ? (isLandscape ? '100%' : 'auto') : 
               isLargeTablet ? (isLandscape ? '100%' : 'auto') : 
-              '564px',
+              '500px',
       margin: isTablet ? (isLandscape ? '20px' : '30px 0 30px 20px') : 
               isLargeTablet ? (isLandscape ? '25px' : '30px 0 30px 25px') : 
               '30px 0 30px 30px',
@@ -124,9 +124,10 @@ const AdminLogin = () => {
       flexShrink: 0,
       alignSelf: isTablet && !isLandscape ? 'center' : 'stretch',
     },
+
     loginImage: {
-      width: '100%',
-      height: '100%',
+      width: '500px',
+      height: '450px',
       // objectFit: 'cover',
       borderRadius: 'inherit',
     },
@@ -371,25 +372,7 @@ const AdminLogin = () => {
   return (
     <div style={styles.container}>
       <div style={styles.wrapper}>
-        {/* Mobile View: Image above login form */}
-        {isMobile && (
-          <div style={styles.imageContainer}>
-            <img 
-              src={adminLoginImage} 
-              alt="Admin Login" 
-              style={styles.loginImage}
-              onError={(e) => {
-                console.log('Image failed to load');
-                e.target.style.backgroundColor = '#f5f5f5';
-                e.target.style.display = 'flex';
-                e.target.style.alignItems = 'center';
-                e.target.style.justifyContent = 'center';
-                e.target.style.color = '#666';
-                e.target.innerHTML = '<div style="text-align: center; padding: 20px;"><h3 style="margin: 0;">Admin Portal</h3></div>';
-              }}
-            />
-          </div>
-        )}
+       
 
         {/* Tablet/Desktop View: Image on left side */}
         {!isMobile && (
